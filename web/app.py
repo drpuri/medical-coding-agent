@@ -16,6 +16,21 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from system_prompt import SYSTEM_PROMPT_PROVIDER, SYSTEM_PROMPT_ENRICH
+import subprocess
+
+def get_version():
+    """Get git short hash for version display. Falls back to 'dev'."""
+    try:
+        return subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+    except Exception:
+        # Vercel sets VERCEL_GIT_COMMIT_SHA
+        sha = os.environ.get('VERCEL_GIT_COMMIT_SHA', '')
+        return sha[:7] if sha else 'dev'
+
+APP_VERSION = get_version()
 
 app = Flask(
     __name__,
@@ -88,7 +103,7 @@ def get_client():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", version=APP_VERSION)
 
 
 @app.route("/analyze", methods=["POST"])
