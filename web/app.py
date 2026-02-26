@@ -128,4 +128,4 @@ if __name__ == "__main__":
     if not os.environ.get("ANTHROPIC_API_KEY"):
         print("\n⚠️  ANTHROPIC_API_KEY not set.")
         print("Run: export ANTHROPIC_API_KEY=your_key_here\n")
-    app.run(debug=True, port=5001)
+    app.run()
