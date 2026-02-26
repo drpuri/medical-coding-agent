@@ -186,6 +186,8 @@
     .empty-sub { font-size: 13px; color: var(--ink-mute); max-width: 280px; }
     .loading-bar { width: 240px; height: 3px; background: var(--rule); border-radius: 2px; overflow: hidden; }
     .loading-bar-inner { height: 100%; background: var(--accent); animation: loading 1.8s ease-in-out infinite; border-radius: 2px; }
+    .progress-bar-track { width: 320px; height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 3px; transition: width 0.3s ease; }
     @keyframes loading {
       0%   { width: 0%; margin-left: 0%; }
       50%  { width: 60%; margin-left: 20%; }
@@ -839,8 +841,8 @@
     </div>
 
     <div class="loading-state" id="loading-state">
-      <div class="loading-bar"><div class="loading-bar-inner"></div></div>
-      <div class="loading-label">Analyzing note...</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
+      <div class="loading-label" id="progress-label">Connecting...</div>
     </div>
 
     <div class="result-container" id="result-container">
@@ -907,7 +909,34 @@
     document.getElementById('result-container').style.display = state === 'result' ? 'block' : 'none';
   }
 
-  // ── Analyze ──
+  // ── Section detection for progress ──
+  var SECTIONS = [
+    { key: '"hcc_scorecard"', label: 'Finalizing HCC scorecard...', pct: 90 },
+    { key: '"tier3"', label: 'Checking documentation flags...', pct: 78 },
+    { key: '"tier2"', label: 'Evaluating clinical decisions...', pct: 62 },
+    { key: '"tier1"', label: 'Analyzing diagnoses...', pct: 42 },
+    { key: '"em_code"', label: 'Evaluating E/M level...', pct: 28 },
+    { key: '"billing_alerts"', label: 'Checking billing alerts...', pct: 16 },
+    { key: '"summary"', label: 'Building summary...', pct: 5 }
+  ];
+
+  function detectProgress(text) {
+    for (var i = 0; i < SECTIONS.length; i++) {
+      if (text.includes(SECTIONS[i].key)) {
+        return { label: SECTIONS[i].label, pct: SECTIONS[i].pct };
+      }
+    }
+    return { label: 'Starting analysis...', pct: 2 };
+  }
+
+  function updateProgress(pct, label) {
+    var fill = document.getElementById('progress-fill');
+    var lbl = document.getElementById('progress-label');
+    if (fill) fill.style.width = Math.min(pct, 95) + '%';
+    if (lbl) lbl.textContent = label;
+  }
+
+  // ── Analyze (streaming) ──
   async function analyzeNote() {
     const note = textarea.value.trim();
     if (!note || !checkbox.checked) return;
@@ -918,6 +947,7 @@
     enrichLoading = false;
     providerUsage = null;
     currentView = 'provider';
+    updateProgress(0, 'Connecting...');
     showState('loading');
     analyzeBtn.disabled = true;
     document.getElementById('btn-text').style.display = 'none';
@@ -929,20 +959,66 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ note, deidentified_confirmed: true })
       });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
 
-      if (data.structured && data.data) {
-        providerData = data.data;
-        providerUsage = data.usage;
-        currentAnalysis = JSON.stringify(data.data);
-        renderStructured(data.data, data.usage);
-      } else {
-        currentAnalysis = data.analysis;
-        renderRawFallback(data.analysis, data.usage);
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Request failed');
       }
-      showState('result');
-      document.getElementById('followup-thread').innerHTML = '';
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        // Parse SSE events from buffer
+        var lines = buffer.split('\n');
+        buffer = lines.pop(); // Keep incomplete line in buffer
+
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          if (!line.startsWith('data: ')) continue;
+
+          var payload;
+          try { payload = JSON.parse(line.slice(6)); }
+          catch(e) { continue; }
+
+          if (payload.type === 'chunk') {
+            accumulated += payload.text;
+            var progress = detectProgress(accumulated);
+            updateProgress(progress.pct, progress.label);
+
+          } else if (payload.type === 'done') {
+            updateProgress(100, 'Complete');
+            if (payload.structured && payload.data) {
+              providerData = payload.data;
+              providerUsage = payload.usage;
+              currentAnalysis = JSON.stringify(payload.data);
+              renderStructured(payload.data, payload.usage);
+            } else {
+              currentAnalysis = payload.analysis || accumulated;
+              renderRawFallback(payload.analysis || accumulated, payload.usage);
+            }
+            showState('result');
+            document.getElementById('followup-thread').innerHTML = '';
+
+          } else if (payload.type === 'error') {
+            throw new Error(payload.error);
+          }
+        }
+      }
+
+      // If stream ended without a 'done' event, try to parse accumulated
+      if (!providerData && accumulated) {
+        updateProgress(100, 'Complete');
+        currentAnalysis = accumulated;
+        renderRawFallback(accumulated, null);
+        showState('result');
+      }
 
     } catch (err) {
       document.getElementById('analysis-output').innerHTML =

@@ -9,7 +9,7 @@ import json
 import re
 import time
 import logging
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response, stream_with_context
 import anthropic
 
 logging.basicConfig(level=logging.INFO)
@@ -93,7 +93,7 @@ def index():
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
-    """Call 1: Fast provider-view analysis (no detail fields, no frailty)."""
+    """Call 1: Streaming provider-view analysis via SSE."""
     data = request.get_json()
 
     # Validate de-identification acknowledgment
@@ -117,56 +117,60 @@ def analyze():
     except json.JSONDecodeError:
         pass  # Treat as plain text
 
-    try:
-        client = get_client()
-        t0 = time.time()
-        logger.info("Starting PROVIDER call (max_tokens=4096)")
-        response = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=4096,
-            system=SYSTEM_PROMPT_PROVIDER,
-            messages=[
-                {
-                    "role": "user",
-                    "content": f"Analyze this de-identified clinical note. Return ONLY valid JSON following the schema in your instructions.\n\n{note_content}"
-                }
-            ]
-        )
-        elapsed = time.time() - t0
+    def generate():
+        try:
+            client = get_client()
+            t0 = time.time()
+            logger.info("Starting PROVIDER stream (max_tokens=4096)")
+            accumulated = ""
 
-        raw_text = response.content[0].text
-        usage = {
-            "input_tokens": response.usage.input_tokens,
-            "output_tokens": response.usage.output_tokens
+            with client.messages.stream(
+                model="claude-sonnet-4-6",
+                max_tokens=4096,
+                system=SYSTEM_PROMPT_PROVIDER,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": f"Analyze this de-identified clinical note. Return ONLY valid JSON following the schema in your instructions.\n\n{note_content}"
+                    }
+                ]
+            ) as stream:
+                for text in stream.text_stream:
+                    accumulated += text
+                    yield f"data: {json.dumps({'type': 'chunk', 'text': text})}\n\n"
+
+                response = stream.get_final_message()
+
+            elapsed = time.time() - t0
+            usage = {
+                "input_tokens": response.usage.input_tokens,
+                "output_tokens": response.usage.output_tokens
+            }
+            logger.info(
+                "PROVIDER stream complete: %.1fs | input=%d output=%d | stop=%s",
+                elapsed, usage["input_tokens"], usage["output_tokens"],
+                response.stop_reason
+            )
+
+            structured_data = extract_json(accumulated)
+            if structured_data is not None:
+                yield f"data: {json.dumps({'type': 'done', 'structured': True, 'data': structured_data, 'usage': usage})}\n\n"
+            else:
+                yield f"data: {json.dumps({'type': 'done', 'structured': False, 'analysis': accumulated, 'usage': usage})}\n\n"
+
+        except Exception as e:
+            logger.error("PROVIDER stream error: %s", str(e))
+            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+            'Connection': 'keep-alive'
         }
-        logger.info(
-            "PROVIDER call complete: %.1fs | input=%d output=%d | stop=%s",
-            elapsed, usage["input_tokens"], usage["output_tokens"],
-            response.stop_reason
-        )
-
-        # Extract and parse JSON from the response
-        structured_data = extract_json(raw_text)
-        if structured_data is not None:
-            return jsonify({
-                "structured": True,
-                "data": structured_data,
-                "usage": usage
-            })
-        else:
-            # Fallback: return raw text for legacy rendering
-            return jsonify({
-                "structured": False,
-                "analysis": raw_text,
-                "usage": usage
-            })
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 500
-    except anthropic.APIError as e:
-        return jsonify({"error": f"API error: {str(e)}"}), 500
-    except Exception as e:
-        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+    )
 
 
 @app.route("/enrich", methods=["POST"])
