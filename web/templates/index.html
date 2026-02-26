@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coding Consultant — SNF/ALF Primary Care</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink:       #0f1117;
+      --ink-soft:  #3a3f4d;
+      --ink-mute:  #8b919e;
+      --rule:      #e2e5eb;
+      --surface:   #f7f8fa;
+      --white:     #ffffff;
+      --accent:    #1a56db;
+      --accent-lt: #eff4ff;
+      --warn:      #c0392b;
+      --warn-lt:   #fdf2f2;
+      --ok:        #1a7a4a;
+      --ok-lt:     #f0faf4;
+      --amber:     #b45309;
+      --amber-lt:  #fffbeb;
+      --t1:        #1a56db;
+      --t1-lt:     #eff4ff;
+      --t2:        #6d28d9;
+      --t2-lt:     #f5f3ff;
+      --t3:        #374151;
+      --t3-lt:     #f9fafb;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--ink);
+      color: var(--white);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .header-title {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .header-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-mute);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ── Left Panel ── */
+    .panel-left {
+      background: var(--white);
+      border-right: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 56px);
+      position: sticky;
+      top: 56px;
+      overflow-y: auto;
+    }
+    .panel-section {
+      padding: 24px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .panel-section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 12px;
+    }
+
+    /* ── Note Input ── */
+    .note-textarea {
+      width: 100%;
+      height: 280px;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--ink);
+      background: var(--surface);
+      resize: vertical;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    .note-textarea:focus {
+      border-color: var(--accent);
+      background: var(--white);
+    }
+    .note-textarea::placeholder { color: var(--ink-mute); }
+
+    /* ── File Upload ── */
+    .upload-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .btn-upload {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 7px 14px;
+      border: 1px solid var(--rule);
+      border-radius: 5px;
+      background: var(--white);
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-upload:hover { border-color: var(--ink-soft); color: var(--ink); }
+    .file-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-mute);
+    }
+    #file-input { display: none; }
+
+    /* ── De-ID Acknowledgment ── */
+    .deid-box {
+      background: var(--warn-lt);
+      border: 1px solid #f5c2be;
+      border-radius: 6px;
+      padding: 14px;
+    }
+    .deid-box label {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      cursor: pointer;
+    }
+    .deid-box input[type="checkbox"] {
+      margin-top: 2px;
+      width: 15px;
+      height: 15px;
+      accent-color: var(--warn);
+      flex-shrink: 0;
+    }
+    .deid-text {
+      font-size: 12px;
+      color: var(--warn);
+      line-height: 1.5;
+    }
+    .deid-text strong { font-weight: 600; }
+
+    /* ── Submit ── */
+    .btn-analyze {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.01em;
+      margin-top: 4px;
+    }
+    .btn-analyze:hover { background: #1447c0; }
+    .btn-analyze:disabled {
+      background: var(--rule);
+      color: var(--ink-mute);
+      cursor: not-allowed;
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Tip box ── */
+    .tip {
+      font-size: 11px;
+      color: var(--ink-mute);
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    /* ── Right Panel / Results ── */
+    .panel-right {
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 400px;
+      text-align: center;
+      gap: 12px;
+    }
+    .empty-icon {
+      width: 48px; height: 48px;
+      background: var(--rule);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .empty-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink-soft);
+    }
+    .empty-sub {
+      font-size: 13px;
+      color: var(--ink-mute);
+      max-width: 280px;
+    }
+
+    /* Loading state */
+    .loading-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 400px;
+      gap: 16px;
+    }
+    .loading-bar {
+      width: 240px;
+      height: 3px;
+      background: var(--rule);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .loading-bar-inner {
+      height: 100%;
+      background: var(--accent);
+      animation: loading 1.8s ease-in-out infinite;
+      border-radius: 2px;
+    }
+    @keyframes loading {
+      0%   { width: 0%; margin-left: 0%; }
+      50%  { width: 60%; margin-left: 20%; }
+      100% { width: 0%; margin-left: 100%; }
+    }
+    .loading-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--ink-mute);
+      letter-spacing: 0.05em;
+    }
+
+    /* Result container */
+    .result-container { display: none; }
+
+    .result-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .result-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .result-tokens {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-mute);
+    }
+
+    /* ── Rendered Analysis ── */
+    .analysis-body {
+      line-height: 1.75;
+    }
+
+    /* Billing alert block */
+    .billing-alert {
+      background: var(--warn-lt);
+      border: 1px solid #f5c2be;
+      border-left: 4px solid var(--warn);
+      border-radius: 6px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .billing-alert-title {
+      font-weight: 600;
+      color: var(--warn);
+      font-size: 13px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* E/M Code block */
+    .em-block {
+      background: var(--accent-lt);
+      border: 1px solid #c3d6fb;
+      border-radius: 6px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .em-code {
+      font-family: 'DM Mono', monospace;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .em-desc { font-size: 13px; color: var(--ink-soft); }
+    .em-desc strong { color: var(--ink); font-weight: 600; }
+
+    /* Tier blocks */
+    .tier-block {
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .tier-header {
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .tier-header:hover { filter: brightness(0.97); }
+    .tier-1 .tier-header { background: var(--t1-lt); }
+    .tier-2 .tier-header { background: var(--t2-lt); }
+    .tier-3 .tier-header { background: var(--t3-lt); }
+    .tier-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+    .tier-1 .tier-badge { background: var(--t1); color: white; }
+    .tier-2 .tier-badge { background: var(--t2); color: white; }
+    .tier-3 .tier-badge { background: var(--t3); color: white; }
+    .tier-label {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .tier-1 .tier-label { color: var(--t1); }
+    .tier-2 .tier-label { color: var(--t2); }
+    .tier-3 .tier-label { color: var(--t3); }
+    .tier-chevron {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--ink-mute);
+      transition: transform 0.2s;
+    }
+    .tier-block.collapsed .tier-chevron { transform: rotate(-90deg); }
+    .tier-content {
+      padding: 16px 18px;
+      border-top: 1px solid var(--rule);
+    }
+    .tier-block.collapsed .tier-content { display: none; }
+
+    /* Code entries */
+    .code-entry {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .code-entry:last-child { border-bottom: none; padding-bottom: 0; }
+    .code-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .icd-code {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-lt);
+      padding: 2px 7px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .code-desc { font-size: 13px; font-weight: 500; }
+    .code-note { font-size: 12px; color: var(--ink-soft); margin-top: 4px; line-height: 1.6; }
+    .hcc-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 2px 6px;
+      background: var(--ok-lt);
+      color: var(--ok);
+      border: 1px solid #a7f3c0;
+      border-radius: 3px;
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
+    /* Gaps section */
+    .gaps-block {
+      background: var(--amber-lt);
+      border: 1px solid #fcd88a;
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .gaps-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--amber);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .gap-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #fcd88a;
+      font-size: 12.5px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .gap-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .gap-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--amber);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* HCC Scorecard */
+    .scorecard {
+      margin-bottom: 16px;
+    }
+    .scorecard-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--ink);
+    }
+    .scorecard-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .scorecard-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 2px solid var(--rule);
+    }
+    .scorecard-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+    }
+    .scorecard-table tr:last-child td { border-bottom: none; }
+    .scorecard-table tr:hover td { background: var(--surface); }
+    .badge-t1 { color: var(--t1); font-weight: 600; }
+    .badge-t2 { color: var(--t2); font-weight: 600; }
+    .badge-t3 { color: var(--t3-lt); font-weight: 600; }
+
+    /* Section card spacing */
+    .billing-alert, .em-block, .tier-block, .gaps-block, .scorecard {
+      margin-bottom: 24px;
+    }
+
+    /* Card body */
+    .card-body {
+      background: var(--surface);
+      padding: 20px;
+    }
+    .card-body h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: 6px 6px 0 0;
+      padding: 10px 14px;
+      margin-top: 16px;
+      margin-bottom: 0;
+    }
+    .card-body h3 + p,
+    .card-body h3 + p + p,
+    .card-body h3 ~ p {
+      border: 1px solid var(--rule);
+      border-top: none;
+      padding: 8px 14px;
+      margin: 0;
+      background: var(--white);
+    }
+    .card-body h3:first-child { margin-top: 0; }
+
+    /* Raw analysis fallback */
+    .raw-analysis {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      color: var(--ink);
+    }
+    .raw-analysis h2 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      margin: 24px 0 8px;
+      color: var(--ink);
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 6px;
+    }
+
+    /* ── Follow-up ── */
+    .followup-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--rule);
+    }
+    .followup-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 10px;
+    }
+    .followup-input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .followup-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .followup-input:focus { border-color: var(--accent); }
+    .btn-followup {
+      padding: 10px 18px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-followup:hover { background: var(--ink-soft); }
+    .btn-followup:disabled { background: var(--rule); color: var(--ink-mute); cursor: not-allowed; }
+
+    .followup-thread {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .followup-q {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .followup-a {
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    /* ── Error ── */
+    .error-box {
+      background: var(--warn-lt);
+      border: 1px solid #f5c2be;
+      border-radius: 6px;
+      padding: 16px;
+      color: var(--warn);
+      font-size: 13px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .panel-left { position: static; height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <div class="header-dot"></div>
+    <span class="header-title">Coding Consultant</span>
+    <span class="header-badge">SNF / ALF Primary Care</span>
+  </div>
+  <span class="header-badge">De-identified notes only</span>
+</header>
+
+<div class="layout">
+
+  <!-- Left: Input Panel -->
+  <div class="panel-left">
+
+    <div class="panel-section">
+      <div class="section-label">Clinical Note</div>
+      <textarea
+        id="note-input"
+        class="note-textarea"
+        placeholder="Paste de-identified note here — plain text or JSON format accepted..."
+      ></textarea>
+      <div class="upload-row">
+        <button class="btn-upload" onclick="document.getElementById('file-input').click()">
+          Upload .txt / .json
+        </button>
+        <span class="file-name" id="file-name-display">No file selected</span>
+        <input type="file" id="file-input" accept=".txt,.json" />
+      </div>
+      <p class="tip">Accepts Gehrimed note text or structured JSON exports.</p>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-label">Compliance Acknowledgment</div>
+      <div class="deid-box">
+        <label>
+          <input type="checkbox" id="deid-confirm" />
+          <span class="deid-text">
+            <strong>I confirm this note has been de-identified.</strong>
+            All patient identifiers including name, date of birth, MRN, dates, 
+            and geographic information have been removed or generalized 
+            prior to submission.
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <button class="btn-analyze" id="analyze-btn" onclick="analyzeNote()" disabled>
+        <span id="btn-text">Analyze Note</span>
+        <div class="spinner" id="btn-spinner"></div>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Right: Results Panel -->
+  <div class="panel-right">
+
+    <!-- Empty state -->
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No note analyzed yet</div>
+      <div class="empty-sub">Paste a de-identified note on the left and confirm compliance to begin.</div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="loading-state" id="loading-state">
+      <div class="loading-bar"><div class="loading-bar-inner"></div></div>
+      <div class="loading-label">Analyzing note...</div>
+    </div>
+
+    <!-- Results -->
+    <div class="result-container" id="result-container">
+      <div class="result-meta">
+        <div class="result-title">Coding Analysis</div>
+        <div class="result-tokens" id="token-display"></div>
+      </div>
+      <div id="analysis-output"></div>
+
+      <!-- Follow-up questions -->
+      <div class="followup-section" id="followup-section">
+        <div class="followup-label">Ask a follow-up question</div>
+        <div class="followup-input-row">
+          <input
+            type="text"
+            id="followup-input"
+            class="followup-input"
+            placeholder="e.g. Why shouldn't I use I50.9 for this patient?"
+            onkeydown="if(event.key==='Enter') sendFollowup()"
+          />
+          <button class="btn-followup" id="followup-btn" onclick="sendFollowup()">Ask</button>
+        </div>
+        <div class="followup-thread" id="followup-thread"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── State ──
+  let currentNote = '';
+  let currentAnalysis = '';
+
+  // ── Enable/disable submit button ──
+  const checkbox = document.getElementById('deid-confirm');
+  const textarea = document.getElementById('note-input');
+  const analyzeBtn = document.getElementById('analyze-btn');
+
+  function updateSubmitState() {
+    analyzeBtn.disabled = !(checkbox.checked && textarea.value.trim().length > 50);
+  }
+  checkbox.addEventListener('change', updateSubmitState);
+  textarea.addEventListener('input', updateSubmitState);
+
+  // ── File upload ──
+  document.getElementById('file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById('file-name-display').textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      textarea.value = ev.target.result;
+      updateSubmitState();
+    };
+    reader.readAsText(file);
+  });
+
+  // ── Show/hide states ──
+  function showState(state) {
+    document.getElementById('empty-state').style.display    = state === 'empty'   ? 'flex'  : 'none';
+    document.getElementById('loading-state').style.display  = state === 'loading' ? 'flex'  : 'none';
+    document.getElementById('result-container').style.display = state === 'result' ? 'block' : 'none';
+  }
+
+  // ── Main analysis ──
+  async function analyzeNote() {
+    const note = textarea.value.trim();
+    if (!note || !checkbox.checked) return;
+
+    currentNote = note;
+    showState('loading');
+    analyzeBtn.disabled = true;
+    document.getElementById('btn-text').style.display = 'none';
+    document.getElementById('btn-spinner').style.display = 'block';
+
+    try {
+      const res = await fetch('/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note, deidentified_confirmed: true })
+      });
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      currentAnalysis = data.analysis;
+      renderAnalysis(data.analysis, data.usage);
+      showState('result');
+      document.getElementById('followup-thread').innerHTML = '';
+
+    } catch (err) {
+      document.getElementById('analysis-output').innerHTML =
+        `<div class="error-box">Error: ${err.message}</div>`;
+      showState('result');
+    } finally {
+      analyzeBtn.disabled = false;
+      document.getElementById('btn-text').style.display = '';
+      document.getElementById('btn-spinner').style.display = 'none';
+      updateSubmitState();
+    }
+  }
+
+  // ── Render analysis as formatted HTML ──
+  function renderAnalysis(text, usage) {
+    if (usage) {
+      document.getElementById('token-display').textContent =
+        `${(usage.input_tokens + usage.output_tokens).toLocaleString()} tokens`;
+    }
+
+    // Render as structured markdown-like HTML
+    const output = document.getElementById('analysis-output');
+    output.innerHTML = formatAnalysis(text);
+
+    // Tier toggle behavior
+    output.querySelectorAll('.tier-header').forEach(header => {
+      header.addEventListener('click', () => {
+        header.closest('.tier-block').classList.toggle('collapsed');
+      });
+    });
+  }
+
+  function formatAnalysis(text) {
+    // Convert the markdown-ish analysis output to styled HTML
+    let html = '';
+    const lines = text.split('\n');
+    let i = 0;
+    let inTierBlock = false;
+    let tierContent = '';
+    let currentTierNum = 0;
+    let inTierContent = false;
+
+    function closeTier() {
+      if (inTierBlock) {
+        html += `<div class="tier-content card-body">${renderTierContent(tierContent)}</div></div>`;
+        tierContent = '';
+        inTierBlock = false;
+        inTierContent = false;
+      }
+    }
+
+    while (i < lines.length) {
+      const line = lines[i];
+
+      // Billing alert
+      if (line.match(/^#+\s*.*billing alert|^⚠️|^#{1,3}\s*critical billing/i) ||
+          line.match(/^##\s*.*billing|^##\s*pre.coding billing/i) ||
+          line.match(/^\d+\.\s+.*billing/i)) {
+        closeTier();
+        let alertContent = '';
+        i++;
+        while (i < lines.length && !lines[i].match(/^#{1,3}\s/) && !lines[i].match(/^\d+\.\s+(E\/M|TIER\s*[123]|BILLING|DOCUMENTATION|HCC|SUMMARY|CODING)/i)) {
+          alertContent += lines[i] + '\n';
+          i++;
+        }
+        html += `<div class="billing-alert">
+          <div class="billing-alert-title">⚠️ Billing Alert</div>
+          <div style="font-size:13px">${renderMarkdown(alertContent)}</div>
+        </div>`;
+        continue;
+      }
+
+      // E/M code
+      if (line.match(/^#+\s*(?:\d+\.\s*)?e\/m|^#+\s*(?:\d+\.\s*)?e&m|^\d+\.\s+e\/m/i)) {
+        closeTier();
+        i++;
+        let emContent = '';
+        while (i < lines.length && !lines[i].match(/^#{1,3}\s/) && !lines[i].match(/^\d+\.\s+(E\/M|TIER\s*[123]|BILLING|DOCUMENTATION|HCC|SUMMARY|CODING)/i)) {
+          emContent += lines[i] + '\n';
+          i++;
+        }
+        const codeMatch = emContent.match(/\*{0,2}(9930[4-9]|9931[0-9]|9932[0-9]|9933[0-9])\*{0,2}/);
+        const code = codeMatch ? codeMatch[1] : '';
+        html += `<div class="em-block">
+          ${code ? `<div class="em-code">${code}</div>` : ''}
+          <div class="em-desc">${renderMarkdown(emContent)}</div>
+        </div>`;
+        continue;
+      }
+
+      // Tier 1
+      if (line.match(/^#+\s*(?:\d+\.\s*)?tier\s*1|^#+\s*(?:\d+\.\s*)?code these now|^\d+\.\s+tier\s*1/i)) {
+        closeTier();
+        const label = line.replace(/^#+\s*/,'').trim();
+        html += `<div class="tier-block tier-1">
+          <div class="tier-header">
+            <span class="tier-badge">Tier 1</span>
+            <span class="tier-label">Code These Now</span>
+            <span class="tier-chevron">▼</span>
+          </div>`;
+        inTierBlock = true;
+        currentTierNum = 1;
+        tierContent = '';
+        i++;
+        continue;
+      }
+
+      // Tier 2
+      if (line.match(/^#+\s*(?:\d+\.\s*)?tier\s*2|^#+\s*(?:\d+\.\s*)?provider should confirm|^\d+\.\s+tier\s*2/i)) {
+        closeTier();
+        html += `<div class="tier-block tier-2">
+          <div class="tier-header">
+            <span class="tier-badge">Tier 2</span>
+            <span class="tier-label">Provider Should Confirm Relevance</span>
+            <span class="tier-chevron">▼</span>
+          </div>`;
+        inTierBlock = true;
+        currentTierNum = 2;
+        tierContent = '';
+        i++;
+        continue;
+      }
+
+      // Tier 3
+      if (line.match(/^#+\s*(?:\d+\.\s*)?tier\s*3|^#+\s*(?:\d+\.\s*)?documentation flags|^\d+\.\s+tier\s*3/i)) {
+        closeTier();
+        html += `<div class="tier-block tier-3">
+          <div class="tier-header">
+            <span class="tier-badge">Tier 3</span>
+            <span class="tier-label">Documentation Flags Only</span>
+            <span class="tier-chevron">▼</span>
+          </div>`;
+        inTierBlock = true;
+        currentTierNum = 3;
+        tierContent = '';
+        i++;
+        continue;
+      }
+
+      // Documentation gaps
+      if (line.match(/^#+\s*(?:\d+\.\s*)?documentation gap|^\d+\.\s+documentation gap/i)) {
+        closeTier();
+        i++;
+        let gapContent = '';
+        while (i < lines.length && !lines[i].match(/^#{1,3}\s/) && !lines[i].match(/^\d+\.\s+(E\/M|TIER\s*[123]|BILLING|DOCUMENTATION|HCC|SUMMARY|CODING)/i)) {
+          gapContent += lines[i] + '\n';
+          i++;
+        }
+        const gapItems = gapContent.split('\n')
+          .filter(l => l.match(/^\d+\.|^[-*]/))
+          .map((l, idx) => {
+            const text = l.replace(/^\d+\.|^[-*]\s*/,'').trim();
+            if (!text) return '';
+            return `<div class="gap-item">
+              <span class="gap-num">${idx + 1}.</span>
+              <span>${renderMarkdown(text)}</span>
+            </div>`;
+          }).join('');
+        html += `<div class="gaps-block">
+          <div class="gaps-title">⚡ Documentation Gaps</div>
+          ${gapItems || renderMarkdown(gapContent)}
+        </div>`;
+        continue;
+      }
+
+      // HCC scorecard
+      if (line.match(/^#+\s*(?:\d+\.\s*)?hcc|^\d+\.\s+hcc/i)) {
+        closeTier();
+        i++;
+        let tableContent = '';
+        while (i < lines.length && !lines[i].match(/^#{1,3}\s/) && !lines[i].match(/^\d+\.\s+(E\/M|TIER\s*[123]|BILLING|DOCUMENTATION|HCC|SUMMARY|CODING)/i)) {
+          tableContent += lines[i] + '\n';
+          i++;
+        }
+        html += `<div class="scorecard">
+          <div class="scorecard-title">HCC Capture Scorecard</div>
+          ${renderTable(tableContent)}
+        </div>`;
+        continue;
+      }
+
+      // Other headers — close tier and render as section
+      if (line.match(/^#{1,3}\s/) || line.match(/^\d+\.\s+(SUMMARY|CODING|RECOMMENDED)/i)) {
+        closeTier();
+        const text = line.replace(/^#+\s*/,'').replace(/^\d+\.\s+/,'');
+        html += `<h3 style="margin:20px 0 8px;font-size:14px;font-weight:600;color:var(--ink)">${text}</h3>`;
+        i++;
+        continue;
+      }
+
+      // Accumulate tier content or render directly
+      if (inTierBlock) {
+        tierContent += line + '\n';
+      } else {
+        html += renderMarkdown(line) + '\n';
+      }
+      i++;
+    }
+
+    closeTier();
+    return html || `<div class="raw-analysis">${escapeHtml(text)}</div>`;
+  }
+
+  function renderMarkdown(text) {
+    if (!text.trim()) return '';
+    // Preprocess: strip pipe-delimited lines into plain paragraphs
+    text = text.split('\n').map(function(line) {
+      if (line.includes('|') && line.replace(/[^|]/g, '').length >= 2) {
+        return line.replace(/\|/g, ' ').replace(/\s{2,}/g, ' ').replace(/^[-\s]+$/, '').trim();
+      }
+      return line;
+    }).filter(function(line) {
+      var t = line.trim();
+      return t !== '' && t !== '---' && t !== '--';
+    }).join('\n');
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code style="font-family:DM Mono,monospace;background:var(--surface);padding:1px 4px;border-radius:3px;font-size:0.95em">$1</code>')
+      .replace(/^[-*]\s+(.+)/gm, '<div style="padding:3px 0 3px 12px;border-left:2px solid var(--rule);margin:2px 0">$1</div>')
+      .replace(/^(\d+)\.\s+(.+)/gm, '<div style="padding:3px 0;margin:2px 0"><strong style="color:var(--ink-mute);font-family:DM Mono,monospace;font-size:11px">$1.</strong> $2</div>')
+      .replace(/\n{2,}/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function renderTierContent(text) {
+    if (!text.trim()) return '';
+    var lines = text.split('\n');
+    var blocks = [];
+    var currentHeader = null;
+    var currentBody = [];
+
+    function flush() {
+      if (currentHeader !== null) {
+        blocks.push({ header: currentHeader, body: currentBody.join('\n') });
+      } else if (currentBody.join('\n').trim()) {
+        blocks.push({ header: null, body: currentBody.join('\n') });
+      }
+      currentHeader = null;
+      currentBody = [];
+    }
+
+    for (var j = 0; j < lines.length; j++) {
+      var t = lines[j].trim();
+      if (t === '---' || t === '--') continue;
+      // Standalone bold line or ### heading = new code entry
+      if ((/^\*\*[^*]+\*\*\s*$/.test(t) && !/^[-*]\s/.test(t)) || /^###\s+/.test(t)) {
+        flush();
+        currentHeader = t.replace(/^\*\*/, '').replace(/\*\*\s*$/, '').replace(/^###\s+/, '');
+      } else {
+        currentBody.push(lines[j]);
+      }
+    }
+    flush();
+
+    var result = '';
+    for (var k = 0; k < blocks.length; k++) {
+      if (blocks[k].header) {
+        result += '<h3>' + blocks[k].header + '</h3>';
+        if (blocks[k].body.trim()) {
+          result += '<p>' + renderMarkdown(blocks[k].body) + '</p>';
+        }
+      } else {
+        result += renderMarkdown(blocks[k].body);
+      }
+    }
+    return result;
+  }
+
+  function renderTable(content) {
+    const rows = content.split('\n').filter(l => l.includes('|') && l.trim());
+    if (rows.length < 2) return renderMarkdown(content);
+
+    let tableHtml = '<table class="scorecard-table"><thead>';
+    rows.forEach((row, idx) => {
+      if (row.match(/^\|?[-\s|]+\|?$/)) return; // separator row
+      const cells = row.split('|').filter(c => c.trim());
+      if (idx === 0) {
+        tableHtml += '<tr>' + cells.map(c => `<th>${c.trim()}</th>`).join('') + '</tr></thead><tbody>';
+      } else {
+        tableHtml += '<tr>' + cells.map((c, ci) => {
+          let cls = '';
+          const txt = c.trim();
+          if (ci === 2) { // Tier column
+            if (txt.includes('1')) cls = 'badge-t1';
+            else if (txt.includes('2')) cls = 'badge-t2';
+            else if (txt.includes('3')) cls = 'badge-t3';
+          }
+          return `<td class="${cls}">${txt}</td>`;
+        }).join('') + '</tr>';
+      }
+    });
+    tableHtml += '</tbody></table>';
+    return tableHtml;
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Follow-up questions ──
+  async function sendFollowup() {
+    const input = document.getElementById('followup-input');
+    const question = input.value.trim();
+    if (!question || !currentNote) return;
+
+    const btn = document.getElementById('followup-btn');
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    const thread = document.getElementById('followup-thread');
+    const qEl = document.createElement('div');
+    qEl.className = 'followup-q';
+    qEl.textContent = question;
+    thread.appendChild(qEl);
+    input.value = '';
+
+    try {
+      const res = await fetch('/followup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          note: currentNote,
+          question,
+          prior_analysis: currentAnalysis
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const aEl = document.createElement('div');
+      aEl.className = 'followup-a';
+      aEl.textContent = data.answer;
+      thread.appendChild(aEl);
+
+      // Update analysis context for chained questions
+      currentAnalysis = data.answer;
+
+    } catch (err) {
+      const errEl = document.createElement('div');
+      errEl.className = 'error-box';
+      errEl.textContent = `Error: ${err.message}`;
+      thread.appendChild(errEl);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Ask';
+    }
+  }
+</script>
+
+</body>
+</html>
