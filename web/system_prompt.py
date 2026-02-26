@@ -53,8 +53,7 @@ Always include green confirmations for setting, hospice, and split/shared.
 "em_code": {
   "code": string — CPT code,
   "justification": string — 2-3 sentence justification,
-  "to_increase": string or null — one line: what would support a higher code,
-  "to_decrease": string or null — one line: what would support a lower code
+  "to_increase": string or null — one line: what would support a higher code
 }
 
 "tier1": array of {
