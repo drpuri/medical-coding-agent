@@ -6,8 +6,13 @@ Then open http://localhost:5000
 
 import os
 import json
+import re
+import logging
 from flask import Flask, render_template, request, jsonify
 import anthropic
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from system_prompt import SYSTEM_PROMPT
 
@@ -16,6 +21,61 @@ app = Flask(
     template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'),
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 )
+
+
+def extract_json(raw_text):
+    """
+    Extract a JSON object from LLM output, handling common wrapping patterns:
+    - Clean JSON with no wrapping
+    - ```json ... ``` code fences
+    - ``` ... ``` code fences (no language tag)
+    - Preamble text before the JSON
+    - Trailing text after the JSON
+    Returns parsed dict on success, None on failure.
+    """
+    text = raw_text.strip()
+
+    # 1. Try direct parse first (cleanest case)
+    try:
+        return json.loads(text)
+    except (json.JSONDecodeError, ValueError):
+        pass
+
+    # 2. Strip markdown code fences: ```json ... ``` or ``` ... ```
+    fence_match = re.search(r'```(?:json)?\s*\n?(.*?)```', text, re.DOTALL)
+    if fence_match:
+        try:
+            return json.loads(fence_match.group(1).strip())
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # 3. Find the outermost { ... } and parse that
+    first_brace = text.find('{')
+    last_brace = text.rfind('}')
+    if first_brace != -1 and last_brace > first_brace:
+        candidate = text[first_brace:last_brace + 1]
+        try:
+            return json.loads(candidate)
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error(
+                "JSON parse failed after brace extraction. Error: %s\n"
+                "--- RAW LLM RESPONSE (first 2000 chars) ---\n%s\n"
+                "--- EXTRACTED CANDIDATE (first 2000 chars) ---\n%s\n"
+                "-------------------------------------------",
+                str(e),
+                raw_text[:2000],
+                candidate[:2000]
+            )
+            return None
+
+    # 4. Nothing worked
+    logger.error(
+        "No JSON object found in LLM response.\n"
+        "--- RAW LLM RESPONSE (first 2000 chars) ---\n%s\n"
+        "-------------------------------------------",
+        raw_text[:2000]
+    )
+    return None
 
 
 def get_client():
@@ -75,21 +135,15 @@ def analyze():
             "output_tokens": response.usage.output_tokens
         }
 
-        # Try to parse JSON from the response
-        try:
-            # Strip any markdown code fences the model may wrap around JSON
-            cleaned = raw_text.strip()
-            if cleaned.startswith("```"):
-                cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned[3:]
-                if cleaned.endswith("```"):
-                    cleaned = cleaned[:-3].strip()
-            structured_data = json.loads(cleaned)
+        # Extract and parse JSON from the response
+        structured_data = extract_json(raw_text)
+        if structured_data is not None:
             return jsonify({
                 "structured": True,
                 "data": structured_data,
                 "usage": usage
             })
-        except (json.JSONDecodeError, ValueError):
+        else:
             # Fallback: return raw text for legacy rendering
             return jsonify({
                 "structured": False,
