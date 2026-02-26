@@ -3,6 +3,8 @@ Medical Coding Agent — SNF/ALF Primary Care
 Built for Claude Code using the Anthropic SDK
 """
 
+from __future__ import annotations
+
 import anthropic
 import json
 from system_prompt import SYSTEM_PROMPT
@@ -31,7 +33,7 @@ following your tiered framework:\n\n{note_input}"""
 
     response = client.messages.create(
         model="claude-opus-4-6",
-        max_tokens=4096,
+        max_tokens=5120,
         system=SYSTEM_PROMPT,
         messages=[
             {"role": "user", "content": user_message}
