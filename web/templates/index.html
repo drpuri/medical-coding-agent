@@ -1128,10 +1128,7 @@
 
     // Detailed view content
     html += '<div class="detail-only">';
-    if (item.rationale) html += renderDetailBlock('Rationale', item.rationale);
-    if (item.specificity) html += renderDetailBlock('Specificity', item.specificity);
-    if (item.alternatives) html += renderDetailBlock('Alternatives', item.alternatives);
-    if (item.audit_notes) html += renderDetailBlock('Audit Notes', item.audit_notes);
+    if (item.detail) html += renderDetailBlock('Detail', item.detail);
     html += '</div>';
 
     html += '</div></div>';
@@ -1175,9 +1172,7 @@
 
     // Detailed view
     html += '<div class="detail-only">';
-    if (item.detail_differential) html += renderDetailBlock('Differential', item.detail_differential);
-    if (item.detail_compliance) html += renderDetailBlock('Compliance', item.detail_compliance);
-    if (item.detail_audit) html += renderDetailBlock('Audit Notes', item.detail_audit);
+    if (item.detail) html += renderDetailBlock('Detail', item.detail);
     html += '</div>';
 
     html += '</div></div>';
@@ -1209,8 +1204,7 @@
 
     // Detailed view
     html += '<div class="detail-only">';
-    if (item.detail_rationale) html += renderDetailBlock('Rationale', item.detail_rationale);
-    if (item.detail_screening) html += renderDetailBlock('Screening', item.detail_screening);
+    if (item.detail) html += renderDetailBlock('Detail', item.detail);
     html += '</div>';
 
     html += '</div></div>';
@@ -1320,24 +1314,6 @@
       '</div>';
     }
 
-    // Missing items
-    if (f.missing && f.missing.length > 0) {
-      html += '<div class="frailty-subsection">' +
-        '<div class="frailty-sub-label">What\'s Missing</div>';
-      f.missing.forEach(function(m) {
-        html += '<div class="frailty-indicator">' +
-          '<span>\u26A0\uFE0F</span>' +
-          '<span>' + escapeHtml(m.item) +
-          (m.rec_num ? ' <em style="color:var(--accent);font-size:11px">(See #' + m.rec_num + ')</em>' : '') +
-          '</span>' +
-        '</div>';
-        if (m.copy_paste) {
-          html += renderCopyBlock(m.copy_paste);
-        }
-      });
-      html += '</div>';
-    }
-
     // Applicable measures
     if (f.applicable_measures && f.applicable_measures.length > 0) {
       html += '<div class="frailty-subsection">' +
@@ -1351,15 +1327,11 @@
 
     // Detailed view
     html += '<div class="detail-only">';
-    if (f.detail_criteria) html += renderDetailBlock('NCQA Criteria', f.detail_criteria);
-    if (f.detail_measure_notes) html += renderDetailBlock('Measure Notes', f.detail_measure_notes);
-    if (f.detail_recapture) html += renderDetailBlock('Recapture', f.detail_recapture);
+    if (f.detail) html += renderDetailBlock('Detail', f.detail);
     html += '</div>';
 
-    // Disclaimer
-    if (f.disclaimer) {
-      html += '<div class="frailty-disclaimer">' + escapeHtml(f.disclaimer) + '</div>';
-    }
+    // Disclaimer (static)
+    html += '<div class="frailty-disclaimer">Frailty and advanced illness logic based on CMS HEDIS specifications. Validate against current NCQA value sets for production use.</div>';
 
     html += '</div></div>';
     return html;

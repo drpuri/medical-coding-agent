@@ -69,10 +69,7 @@ Always include green confirmations for setting, hospice, and split/shared.
   "status": "supported" | "action_needed",
   "action_brief": string or null — one-line action if action_needed,
   "copy_paste": string or null — exact documentation language to add to note,
-  "rationale": string — 1-2 sentence coding rationale (detailed view), or null if obvious,
-  "specificity": string — specificity note (detailed view), or null if code is maximally specific,
-  "alternatives": string or null — alternative codes only if meaningfully different,
-  "audit_notes": string or null — only if non-obvious audit risk exists
+  "detail": string or null — combined rationale, specificity, alternatives, audit notes (1-3 sentences max, detailed view only)
 }
 RULES: Only conditions explicitly addressed in Assessment & Plan.
 Include companion codes as separate entries (e.g. I50.22 alongside I13.0).
@@ -90,9 +87,7 @@ copy_paste must be ready to paste directly into a clinical note.
     "copy_paste": string — documentation language for this option,
     "orders": string or null — suggested diagnostic orders
   },
-  "detail_differential": string or null — brief differential if non-obvious,
-  "detail_compliance": string or null — CMS compliance note only if relevant,
-  "detail_audit": string or null — audit note only if non-obvious risk
+  "detail": string or null — combined differential, compliance, audit notes (1-3 sentences max, detailed view only)
 }
 RULES: Conditions referenced in exam/HPI/medications but not in A&P.
 Also clinical findings needing a provider decision (unaddressed exam findings,
@@ -107,8 +102,7 @@ If one option leads to an HCC capture, include the hcc field.
   "hcc": {"category": string, "raf": string} or null,
   "why_flagged": string — one-line reason,
   "copy_paste": string — what provider would need to document to make codeable,
-  "detail_rationale": string or null — brief explanation only if non-obvious,
-  "detail_screening": string or null — screening recommendation only if actionable
+  "detail": string or null — rationale and screening notes (1-2 sentences max, detailed view only)
 }
 RULES: Conditions in PMH/history not connected to today's clinical reasoning.
 Do NOT recommend coding these today. These are future documentation opportunities.
@@ -140,16 +134,8 @@ Do NOT recommend coding these today. These are future documentation opportunitie
     "rec_num": number or null
   },
   "dementia_meds": {"found": boolean, "detail": string},
-  "missing": array of {
-    "item": string — what is missing,
-    "rec_num": number or null — include in global sequence if actionable,
-    "copy_paste": string or null
-  },
   "applicable_measures": array of string — HEDIS measures excluded if qualifying,
-  "detail_criteria": string or null — brief NCQA criteria note if non-obvious,
-  "detail_measure_notes": string or null — measure note only if specific to this patient,
-  "detail_recapture": string or null — recapture note only if relevant,
-  "disclaimer": "Frailty and advanced illness logic based on CMS HEDIS specifications. Validate against current NCQA value sets for production use."
+  "detail": string or null — NCQA criteria, measure notes, recapture guidance (1-3 sentences max, detailed view only)
 }
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
