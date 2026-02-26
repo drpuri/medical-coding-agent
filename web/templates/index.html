@@ -214,27 +214,29 @@
     .summary-card {
       background: var(--white);
       border: 1px solid var(--rule);
-      border-radius: 8px;
-      padding: 14px 16px;
+      border-radius: 6px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
     }
     .summary-card-label {
       font-family: 'DM Mono', monospace;
-      font-size: 10px;
+      font-size: 9px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--ink-mute);
-      margin-bottom: 6px;
+      white-space: nowrap;
     }
     .summary-card-value {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 600;
       font-family: 'DM Mono', monospace;
     }
     .summary-card-value.accent { color: var(--accent); }
     .summary-card-sub {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--ink-soft);
-      margin-top: 2px;
     }
     .summary-card-value.status-qualifies { color: var(--ok); }
     .summary-card-value.status-likely { color: var(--amber); }
@@ -1132,29 +1134,31 @@
     else if (frailtyLabel === 'INSUFFICIENT DATA') frailtyClass = 'status-insufficient';
     else if (frailtyLabel === 'Not analyzed') frailtyClass = 'status-pending';
 
+    var frailtyClickable = frailtyLabel === 'Not analyzed';
+    var frailtyAttrs = frailtyClickable ? ' onclick="requestFrailty()" title="Click to run frailty analysis"' : '';
+    var frailtyStyle = frailtyClickable ? 'font-size:11px;cursor:pointer;text-decoration:underline;text-decoration-style:dotted' : 'font-size:11px';
+
     return '<div class="summary-dashboard">' +
       '<div class="summary-card">' +
         '<div class="summary-card-label">E/M Code</div>' +
         '<div class="summary-card-value accent">' + escapeHtml(s.em_code || '—') + '</div>' +
-        '<div class="summary-card-sub">' + escapeHtml(s.em_brief || '') + '</div>' +
       '</div>' +
       '<div class="summary-card">' +
-        '<div class="summary-card-label">Diagnoses to Code</div>' +
+        '<div class="summary-card-label">Diagnoses</div>' +
         '<div class="summary-card-value">' + (s.diagnoses_count || 0) + '</div>' +
       '</div>' +
       '<div class="summary-card">' +
-        '<div class="summary-card-label">HCC Captures</div>' +
+        '<div class="summary-card-label">HCC</div>' +
         '<div class="summary-card-value">' + (s.hcc_captured || 0) + '</div>' +
-        '<div class="summary-card-sub">' + (s.hcc_action_needed || 0) + ' action needed &middot; ' + (s.hcc_opportunities || 0) + ' opportunities</div>' +
+        '<div class="summary-card-sub">' + (s.hcc_action_needed || 0) + ' action &middot; ' + (s.hcc_opportunities || 0) + ' opp</div>' +
       '</div>' +
       '<div class="summary-card">' +
         '<div class="summary-card-label">Actions</div>' +
         '<div class="summary-card-value">' + (s.total_recommendations || 0) + '</div>' +
-        '<div class="summary-card-sub">documentation recommendations</div>' +
       '</div>' +
       '<div class="summary-card">' +
-        '<div class="summary-card-label">Frailty Exclusion</div>' +
-        '<div class="summary-card-value ' + frailtyClass + '" style="font-size:14px">' + escapeHtml(frailtyLabel) + '</div>' +
+        '<div class="summary-card-label">Frailty</div>' +
+        '<div class="summary-card-value ' + frailtyClass + '" style="' + frailtyStyle + '"' + frailtyAttrs + '>' + escapeHtml(frailtyLabel) + '</div>' +
       '</div>' +
     '</div>';
   }
