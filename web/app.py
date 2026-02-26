@@ -167,11 +167,7 @@ def analyze():
                 response.stop_reason
             )
 
-            structured_data = extract_json(accumulated)
-            if structured_data is not None:
-                yield f"data: {json.dumps({'type': 'done', 'structured': True, 'data': structured_data, 'usage': usage})}\n\n"
-            else:
-                yield f"data: {json.dumps({'type': 'done', 'structured': False, 'analysis': accumulated, 'usage': usage})}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'usage': usage})}\n\n"
 
         except Exception as e:
             logger.error("PROVIDER stream error: %s", str(e))

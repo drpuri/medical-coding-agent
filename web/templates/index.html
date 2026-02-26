@@ -485,7 +485,6 @@
       font-weight: 500;
       margin-bottom: 8px;
     }
-    .rec-status.supported { color: var(--ok); }
     .rec-status.action-needed { color: var(--amber); }
 
     /* ── Copy-paste blocks ── */
@@ -921,35 +920,81 @@
     document.getElementById('result-container').style.display = state === 'result' ? 'block' : 'none';
   }
 
-  // ── Section detection for progress ──
-  var SECTIONS = [
-    { key: '"additional_codes"', label: 'Checking quality measures & add-on codes...', pct: 92 },
-    { key: '"hcc_scorecard"', label: 'Finalizing HCC scorecard...', pct: 84 },
-    { key: '"tier3"', label: 'Checking documentation flags...', pct: 72 },
-    { key: '"tier2"', label: 'Evaluating clinical decisions...', pct: 58 },
-    { key: '"tier1"', label: 'Analyzing diagnoses...', pct: 40 },
-    { key: '"em_code"', label: 'Evaluating E/M level...', pct: 26 },
-    { key: '"billing_alerts"', label: 'Checking billing alerts...', pct: 14 },
-    { key: '"summary"', label: 'Building summary...', pct: 5 }
+  // ── Progressive section rendering ──
+  var SECTION_ORDER = [
+    { name: 'summary',          label: 'Building summary...',                     pct: 12 },
+    { name: 'billing_alerts',   label: 'Checking billing alerts...',              pct: 24 },
+    { name: 'em_code',          label: 'Evaluating E/M level...',                 pct: 36 },
+    { name: 'tier1',            label: 'Analyzing diagnoses...',                  pct: 50 },
+    { name: 'tier2',            label: 'Evaluating clinical decisions...',        pct: 62 },
+    { name: 'tier3',            label: 'Checking documentation flags...',         pct: 74 },
+    { name: 'hcc_scorecard',    label: 'Finalizing HCC scorecard...',             pct: 86 },
+    { name: 'additional_codes', label: 'Checking quality measures & add-on codes...', pct: 95 }
   ];
-
-  function detectProgress(text) {
-    for (var i = 0; i < SECTIONS.length; i++) {
-      if (text.includes(SECTIONS[i].key)) {
-        return { label: SECTIONS[i].label, pct: SECTIONS[i].pct };
-      }
-    }
-    return { label: 'Starting analysis...', pct: 2 };
-  }
+  var sectionIdx = 0;
+  var providerSections = {};
 
   function updateProgress(pct, label) {
     var fill = document.getElementById('progress-fill');
     var lbl = document.getElementById('progress-label');
-    if (fill) fill.style.width = Math.min(pct, 95) + '%';
+    if (fill) fill.style.width = Math.min(pct, 100) + '%';
     if (lbl) lbl.textContent = label;
   }
 
-  // ── Analyze (streaming) ──
+  function parseAndRenderSection(jsonText) {
+    var trimmed = jsonText.trim();
+    if (!trimmed || sectionIdx >= SECTION_ORDER.length) return;
+
+    var sectionName = SECTION_ORDER[sectionIdx].name;
+    try {
+      var parsed = JSON.parse(trimmed);
+      providerSections[sectionName] = parsed;
+    } catch(e) {
+      // Try extract_json-style cleanup
+      var extracted = extractJsonClient(trimmed);
+      if (extracted !== null) {
+        providerSections[sectionName] = extracted;
+      }
+    }
+
+    // Build providerData from all sections parsed so far
+    providerData = {
+      summary: providerSections.summary || {},
+      billing_alerts: providerSections.billing_alerts || [],
+      em_code: providerSections.em_code || {},
+      tier1: providerSections.tier1 || [],
+      tier2: providerSections.tier2 || [],
+      tier3: providerSections.tier3 || [],
+      hcc_scorecard: providerSections.hcc_scorecard || [],
+      additional_codes: providerSections.additional_codes || []
+    };
+
+    renderStructured(providerData, null);
+    showState('result');
+
+    sectionIdx++;
+    if (sectionIdx < SECTION_ORDER.length) {
+      updateProgress(SECTION_ORDER[sectionIdx].pct, SECTION_ORDER[sectionIdx].label);
+    }
+  }
+
+  function extractJsonClient(text) {
+    // Simple client-side JSON extraction
+    text = text.trim();
+    try { return JSON.parse(text); } catch(e) {}
+    // Try stripping code fences
+    var m = text.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
+    if (m) { try { return JSON.parse(m[1].trim()); } catch(e) {} }
+    // Try outermost braces/brackets
+    var first = text.search(/[\[{]/);
+    var last = Math.max(text.lastIndexOf('}'), text.lastIndexOf(']'));
+    if (first !== -1 && last > first) {
+      try { return JSON.parse(text.substring(first, last + 1)); } catch(e) {}
+    }
+    return null;
+  }
+
+  // ── Analyze (streaming with progressive render) ──
   async function analyzeNote() {
     const note = textarea.value.trim();
     if (!note || !checkbox.checked) return;
@@ -959,6 +1004,8 @@
     enrichData = null;
     enrichLoading = false;
     providerUsage = null;
+    providerSections = {};
+    sectionIdx = 0;
     currentView = 'provider';
     updateProgress(0, 'Connecting...');
     showState('loading');
@@ -980,17 +1027,20 @@
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let accumulated = '';
-      let buffer = '';
+      let accumulated = '';    // Full text for current section
+      let sseBuffer = '';      // SSE line buffer
+
+      // Show initial progress
+      updateProgress(SECTION_ORDER[0].pct, SECTION_ORDER[0].label);
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        buffer += decoder.decode(value, { stream: true });
+        sseBuffer += decoder.decode(value, { stream: true });
 
         // Parse SSE events from buffer
-        var lines = buffer.split('\n');
-        buffer = lines.pop(); // Keep incomplete line in buffer
+        var lines = sseBuffer.split('\n');
+        sseBuffer = lines.pop(); // Keep incomplete line
 
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i];
@@ -1002,21 +1052,28 @@
 
           if (payload.type === 'chunk') {
             accumulated += payload.text;
-            var progress = detectProgress(accumulated);
-            updateProgress(progress.pct, progress.label);
+
+            // Check for section delimiter
+            var delimIdx;
+            while ((delimIdx = accumulated.indexOf('---SECTION---')) !== -1) {
+              var sectionText = accumulated.substring(0, delimIdx);
+              accumulated = accumulated.substring(delimIdx + '---SECTION---'.length);
+              parseAndRenderSection(sectionText);
+            }
 
           } else if (payload.type === 'done') {
-            updateProgress(100, 'Complete');
-            if (payload.structured && payload.data) {
-              providerData = payload.data;
-              providerUsage = payload.usage;
-              currentAnalysis = JSON.stringify(payload.data);
-              renderStructured(payload.data, payload.usage);
-            } else {
-              currentAnalysis = payload.analysis || accumulated;
-              renderRawFallback(payload.analysis || accumulated, payload.usage);
+            // Parse any remaining text as the last section
+            if (accumulated.trim()) {
+              parseAndRenderSection(accumulated);
+              accumulated = '';
             }
-            showState('result');
+            updateProgress(100, 'Complete');
+            providerUsage = payload.usage;
+            if (providerData) {
+              currentAnalysis = JSON.stringify(providerData);
+              // Final render with usage
+              renderStructured(providerData, providerUsage);
+            }
             document.getElementById('followup-thread').innerHTML = '';
 
           } else if (payload.type === 'error') {
@@ -1025,11 +1082,12 @@
         }
       }
 
-      // If stream ended without a 'done' event, try to parse accumulated
-      if (!providerData && accumulated) {
-        updateProgress(100, 'Complete');
-        currentAnalysis = accumulated;
-        renderRawFallback(accumulated, null);
+      // If stream ended without done event, parse remaining
+      if (accumulated.trim()) {
+        parseAndRenderSection(accumulated);
+      }
+      if (providerData) {
+        currentAnalysis = JSON.stringify(providerData);
         showState('result');
       }
 
@@ -1329,9 +1387,6 @@
     if (item.hcc) {
       hccHtml = '<span class="rec-hcc">' + escapeHtml(item.hcc.category) + ' RAF ' + escapeHtml(item.hcc.raf) + '</span>';
     }
-    var statusClass = item.status === 'supported' ? 'supported' : 'action-needed';
-    var statusIcon = item.status === 'supported' ? '\u2705 Supported as-is' : '\u26A0\uFE0F Action needed';
-
     var html = '<div class="rec-card tier-1" id="rec-' + item.rec_num + '">' +
       '<div class="rec-card-header">' +
         '<span class="rec-num">#' + item.rec_num + '</span>' +
@@ -1339,8 +1394,11 @@
         '<span class="rec-desc">' + escapeHtml(item.description) + '</span>' +
         hccHtml +
       '</div>' +
-      '<div class="rec-card-body">' +
-        '<div class="rec-status ' + statusClass + '">' + statusIcon + '</div>';
+      '<div class="rec-card-body">';
+
+    if (item.status === 'action_needed') {
+      html += '<div class="rec-status action-needed">\u26A0\uFE0F Action needed</div>';
+    }
 
     if (item.action_brief) {
       html += '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:6px">' + escapeHtml(item.action_brief) + '</div>';
