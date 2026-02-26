@@ -15,7 +15,7 @@ import anthropic
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from system_prompt import SYSTEM_PROMPT
+from system_prompt import SYSTEM_PROMPT_PROVIDER, SYSTEM_PROMPT_ENRICH
 
 app = Flask(
     __name__,
@@ -93,6 +93,7 @@ def index():
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
+    """Call 1: Fast provider-view analysis (no detail fields, no frailty)."""
     data = request.get_json()
 
     # Validate de-identification acknowledgment
@@ -119,11 +120,11 @@ def analyze():
     try:
         client = get_client()
         t0 = time.time()
-        logger.info("Starting API call to claude-sonnet-4-6 (max_tokens=8192)")
+        logger.info("Starting PROVIDER call (max_tokens=4096)")
         response = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=8192,
-            system=SYSTEM_PROMPT,
+            max_tokens=4096,
+            system=SYSTEM_PROMPT_PROVIDER,
             messages=[
                 {
                     "role": "user",
@@ -139,7 +140,7 @@ def analyze():
             "output_tokens": response.usage.output_tokens
         }
         logger.info(
-            "API call complete: %.1fs | input=%d output=%d | stop=%s",
+            "PROVIDER call complete: %.1fs | input=%d output=%d | stop=%s",
             elapsed, usage["input_tokens"], usage["output_tokens"],
             response.stop_reason
         )
@@ -168,6 +169,76 @@ def analyze():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 
+@app.route("/enrich", methods=["POST"])
+def enrich():
+    """Call 2: Coder-level detail enrichment + frailty analysis."""
+    data = request.get_json()
+    note = data.get("note", "").strip()
+    prior_analysis = data.get("prior_analysis")
+
+    if not note or not prior_analysis:
+        return jsonify({"error": "Note and prior analysis required."}), 400
+
+    prior_json = json.dumps(prior_analysis) if isinstance(prior_analysis, dict) else str(prior_analysis)
+
+    try:
+        client = get_client()
+        t0 = time.time()
+        logger.info("Starting ENRICH call (max_tokens=4096)")
+        response = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=4096,
+            system=SYSTEM_PROMPT_ENRICH,
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Clinical note:\n\n{note}"
+                },
+                {
+                    "role": "assistant",
+                    "content": prior_json
+                },
+                {
+                    "role": "user",
+                    "content": "Now provide detailed enrichment: coder-level rationale for each recommendation and a full frailty/advanced illness exclusion analysis. Return ONLY valid JSON following the enrichment schema."
+                }
+            ]
+        )
+        elapsed = time.time() - t0
+
+        raw_text = response.content[0].text
+        usage = {
+            "input_tokens": response.usage.input_tokens,
+            "output_tokens": response.usage.output_tokens
+        }
+        logger.info(
+            "ENRICH call complete: %.1fs | input=%d output=%d | stop=%s",
+            elapsed, usage["input_tokens"], usage["output_tokens"],
+            response.stop_reason
+        )
+
+        structured_data = extract_json(raw_text)
+        if structured_data is not None:
+            return jsonify({
+                "structured": True,
+                "data": structured_data,
+                "usage": usage
+            })
+        else:
+            return jsonify({
+                "structured": False,
+                "raw": raw_text,
+                "usage": usage
+            })
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 500
+    except anthropic.APIError as e:
+        return jsonify({"error": f"API error: {str(e)}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+
 @app.route("/followup", methods=["POST"])
 def followup():
     data = request.get_json()
@@ -183,7 +254,7 @@ def followup():
         response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=2048,
-            system=SYSTEM_PROMPT,
+            system=SYSTEM_PROMPT_PROVIDER,
             messages=[
                 {
                     "role": "user",

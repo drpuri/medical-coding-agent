@@ -238,6 +238,9 @@
     .summary-card-value.status-likely { color: var(--amber); }
     .summary-card-value.status-no { color: var(--ink-mute); }
     .summary-card-value.status-insufficient { color: var(--ink-mute); }
+    .summary-card-value.status-pending { color: var(--accent); cursor: pointer; font-style: italic; }
+    .enrich-loading { padding: 24px; text-align: center; }
+    .enrich-loading .loading-bar { margin: 0 auto 8px; }
 
     /* ── View Toggle ── */
     .view-toggle {
@@ -871,6 +874,10 @@
   let currentNote = '';
   let currentAnalysis = '';
   let currentView = 'provider'; // 'provider' or 'detailed'
+  let providerData = null;     // Call 1 result
+  let enrichData = null;       // Call 2 result
+  let enrichLoading = false;   // Prevent double-fire
+  let providerUsage = null;    // Token usage from Call 1
 
   // ── Enable/disable submit ──
   const checkbox = document.getElementById('deid-confirm');
@@ -906,6 +913,11 @@
     if (!note || !checkbox.checked) return;
 
     currentNote = note;
+    providerData = null;
+    enrichData = null;
+    enrichLoading = false;
+    providerUsage = null;
+    currentView = 'provider';
     showState('loading');
     analyzeBtn.disabled = true;
     document.getElementById('btn-text').style.display = 'none';
@@ -921,6 +933,8 @@
       if (data.error) throw new Error(data.error);
 
       if (data.structured && data.data) {
+        providerData = data.data;
+        providerUsage = data.usage;
         currentAnalysis = JSON.stringify(data.data);
         renderStructured(data.data, data.usage);
       } else {
@@ -992,6 +1006,12 @@
     // Frailty
     if (d.frailty) {
       html += renderFrailty(d.frailty);
+    } else {
+      html += '<div id="frailty-placeholder" class="frailty-section">' +
+        '<div class="frailty-header no" style="cursor:pointer" onclick="requestFrailty()">' +
+          '\uD83D\uDD0D Frailty & Advanced Illness Exclusion &mdash; <span style="font-weight:400">Click to analyze</span>' +
+        '</div>' +
+      '</div>';
     }
 
     html += '</div>'; // .content-main
@@ -1014,10 +1034,11 @@
   // ── Summary ──
   function renderSummary(s) {
     var frailtyClass = 'status-no';
-    var frailtyLabel = s.frailty_status || 'N/A';
+    var frailtyLabel = s.frailty_status || 'Not analyzed';
     if (frailtyLabel === 'QUALIFIES') frailtyClass = 'status-qualifies';
     else if (frailtyLabel === 'LIKELY QUALIFIES') frailtyClass = 'status-likely';
     else if (frailtyLabel === 'INSUFFICIENT DATA') frailtyClass = 'status-insufficient';
+    else if (frailtyLabel === 'Not analyzed') frailtyClass = 'status-pending';
 
     return '<div class="summary-dashboard">' +
       '<div class="summary-card">' +
@@ -1051,10 +1072,119 @@
     currentView = view;
     document.getElementById('toggle-provider').className = 'view-toggle-btn' + (view === 'provider' ? ' active' : '');
     document.getElementById('toggle-detailed').className = 'view-toggle-btn' + (view === 'detailed' ? ' active' : '');
+
+    if (view === 'detailed' && !enrichData && !enrichLoading && providerData) {
+      loadEnrichment();
+    }
+
     var scope = document.getElementById('view-scope');
     if (scope) {
       scope.className = 'content-layout' + (view === 'detailed' ? ' view-detailed' : '');
     }
+  }
+
+  // ── Load Enrichment (Call 2) ──
+  async function loadEnrichment(scrollToFrailty) {
+    if (enrichLoading || !providerData || !currentNote) return;
+    enrichLoading = true;
+
+    // Show loading indicators
+    var enrichSpinner = document.getElementById('enrich-spinner');
+    if (enrichSpinner) enrichSpinner.style.display = 'flex';
+    var frailtyPlaceholder = document.getElementById('frailty-placeholder');
+    if (frailtyPlaceholder) frailtyPlaceholder.innerHTML =
+      '<div class="enrich-loading"><div class="loading-bar"><div class="loading-bar-inner"></div></div><div class="loading-label">Loading detailed analysis & frailty...</div></div>';
+
+    try {
+      var res = await fetch('/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: currentNote, prior_analysis: providerData })
+      });
+      var data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      if (data.structured && data.data) {
+        enrichData = data.data;
+        var merged = mergeEnrichment(providerData, enrichData);
+        var totalUsage = providerUsage ? {
+          input_tokens: providerUsage.input_tokens + (data.usage ? data.usage.input_tokens : 0),
+          output_tokens: providerUsage.output_tokens + (data.usage ? data.usage.output_tokens : 0)
+        } : data.usage;
+        renderStructured(merged, totalUsage);
+        // Re-apply current view after re-render
+        switchViewCss(currentView);
+        if (scrollToFrailty) {
+          var frailtyEl = document.querySelector('.frailty-section');
+          if (frailtyEl) frailtyEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        var frailtyEl2 = document.getElementById('frailty-placeholder');
+        if (frailtyEl2) frailtyEl2.innerHTML = '<div class="error-box">Enrichment failed to parse. Try again.</div>';
+      }
+    } catch (err) {
+      var frailtyEl3 = document.getElementById('frailty-placeholder');
+      if (frailtyEl3) frailtyEl3.innerHTML = '<div class="error-box">Error: ' + escapeHtml(err.message) + '</div>';
+    } finally {
+      enrichLoading = false;
+      var spinner = document.getElementById('enrich-spinner');
+      if (spinner) spinner.style.display = 'none';
+    }
+  }
+
+  // Apply view CSS without triggering enrichment
+  function switchViewCss(view) {
+    document.getElementById('toggle-provider').className = 'view-toggle-btn' + (view === 'provider' ? ' active' : '');
+    document.getElementById('toggle-detailed').className = 'view-toggle-btn' + (view === 'detailed' ? ' active' : '');
+    var scope = document.getElementById('view-scope');
+    if (scope) {
+      scope.className = 'content-layout' + (view === 'detailed' ? ' view-detailed' : '');
+    }
+  }
+
+  // ── Merge enrichment into provider data ──
+  function mergeEnrichment(provider, enrich) {
+    var merged = JSON.parse(JSON.stringify(provider));
+
+    // Billing alert details
+    if (enrich.billing_alert_details && merged.billing_alerts) {
+      merged.billing_alerts.forEach(function(alert, i) {
+        if (enrich.billing_alert_details[i]) {
+          alert.detail = enrich.billing_alert_details[i];
+        }
+      });
+    }
+
+    // E/M MDM detail
+    if (enrich.em_detail && merged.em_code) {
+      merged.em_code.mdm_problems = enrich.em_detail.mdm_problems;
+      merged.em_code.mdm_data = enrich.em_detail.mdm_data;
+      merged.em_code.mdm_risk = enrich.em_detail.mdm_risk;
+    }
+
+    // Rec details
+    if (enrich.rec_details) {
+      [merged.tier1, merged.tier2, merged.tier3].forEach(function(tier) {
+        if (tier) {
+          tier.forEach(function(item) {
+            var key = String(item.rec_num);
+            if (enrich.rec_details[key]) {
+              item.detail = enrich.rec_details[key];
+            }
+          });
+        }
+      });
+    }
+
+    // Frailty
+    if (enrich.frailty) {
+      merged.frailty = enrich.frailty;
+      if (merged.summary) {
+        merged.summary.frailty_status = enrich.frailty.status;
+      }
+    }
+
+    return merged;
   }
 
   // ── Billing Alerts ──
@@ -1377,6 +1507,15 @@
       }, 1500);
     });
   });
+
+  function requestFrailty() {
+    if (!enrichData && !enrichLoading && providerData) {
+      loadEnrichment(true);
+    } else if (enrichData) {
+      var frailtyEl = document.querySelector('.frailty-section');
+      if (frailtyEl) frailtyEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
 
   function scrollToRec(num) {
     var el = document.getElementById('rec-' + num);
