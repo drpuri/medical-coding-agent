@@ -186,8 +186,10 @@
     .empty-sub { font-size: 13px; color: var(--ink-mute); max-width: 280px; }
     .loading-bar { width: 240px; height: 3px; background: var(--rule); border-radius: 2px; overflow: hidden; }
     .loading-bar-inner { height: 100%; background: var(--accent); animation: loading 1.8s ease-in-out infinite; border-radius: 2px; }
-    .progress-bar-track { width: 320px; height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+    .progress-bar-track { flex: 1; max-width: 260px; height: 5px; background: var(--rule); border-radius: 3px; overflow: hidden; }
     .progress-bar-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 3px; transition: width 0.3s ease; }
+    .progress-inline { display: none; align-items: center; gap: 8px; flex: 1; margin: 0 16px; }
+    .progress-inline .loading-label { white-space: nowrap; }
     @keyframes loading {
       0%   { width: 0%; margin-left: 0%; }
       50%  { width: 60%; margin-left: 20%; }
@@ -852,13 +854,17 @@
     </div>
 
     <div class="loading-state" id="loading-state">
-      <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
-      <div class="loading-label" id="progress-label">Connecting...</div>
+      <div class="loading-bar"><div class="loading-bar-inner"></div></div>
+      <div class="loading-label">Connecting...</div>
     </div>
 
     <div class="result-container" id="result-container">
       <div class="result-meta">
         <div class="result-title">Coding Analysis</div>
+        <div class="progress-inline" id="progress-inline">
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
+          <div class="loading-label" id="progress-label"></div>
+        </div>
         <div class="result-tokens" id="token-display"></div>
       </div>
       <div id="analysis-output"></div>
@@ -935,10 +941,12 @@
   var providerSections = {};
 
   function updateProgress(pct, label) {
+    var bar = document.getElementById('progress-inline');
     var fill = document.getElementById('progress-fill');
     var lbl = document.getElementById('progress-label');
+    if (bar) bar.style.display = 'flex';
     if (fill) fill.style.width = Math.min(pct, 100) + '%';
-    if (lbl) lbl.textContent = label;
+    if (lbl) lbl.textContent = label || '';
   }
 
   function parseAndRenderSection(jsonText) {
@@ -1007,7 +1015,10 @@
     providerSections = {};
     sectionIdx = 0;
     currentView = 'provider';
-    updateProgress(0, 'Connecting...');
+    document.getElementById('progress-inline').style.display = 'none';
+    document.getElementById('progress-fill').style.width = '0%';
+    document.getElementById('progress-label').textContent = '';
+    document.getElementById('token-display').textContent = '';
     showState('loading');
     analyzeBtn.disabled = true;
     document.getElementById('btn-text').style.display = 'none';
@@ -1071,9 +1082,12 @@
             providerUsage = payload.usage;
             if (providerData) {
               currentAnalysis = JSON.stringify(providerData);
-              // Final render with usage
               renderStructured(providerData, providerUsage);
             }
+            // Hide progress bar after brief pause
+            setTimeout(function() {
+              document.getElementById('progress-inline').style.display = 'none';
+            }, 1500);
             document.getElementById('followup-thread').innerHTML = '';
 
           } else if (payload.type === 'error') {
