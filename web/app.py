@@ -7,6 +7,7 @@ Then open http://localhost:5000
 import os
 import json
 import re
+import time
 import logging
 from flask import Flask, render_template, request, jsonify
 import anthropic
@@ -117,6 +118,8 @@ def analyze():
 
     try:
         client = get_client()
+        t0 = time.time()
+        logger.info("Starting API call to claude-sonnet-4-6 (max_tokens=16384)")
         response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=16384,
@@ -128,12 +131,18 @@ def analyze():
                 }
             ]
         )
+        elapsed = time.time() - t0
 
         raw_text = response.content[0].text
         usage = {
             "input_tokens": response.usage.input_tokens,
             "output_tokens": response.usage.output_tokens
         }
+        logger.info(
+            "API call complete: %.1fs | input=%d output=%d | stop=%s",
+            elapsed, usage["input_tokens"], usage["output_tokens"],
+            response.stop_reason
+        )
 
         # Extract and parse JSON from the response
         structured_data = extract_json(raw_text)
