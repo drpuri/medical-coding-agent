@@ -118,7 +118,7 @@ def analyze():
     try:
         client = get_client()
         response = client.messages.create(
-            model="claude-opus-4-6",
+            model="claude-sonnet-4-6",
             max_tokens=16384,
             system=SYSTEM_PROMPT,
             messages=[
@@ -172,7 +172,7 @@ def followup():
     try:
         client = get_client()
         response = client.messages.create(
-            model="claude-opus-4-6",
+            model="claude-sonnet-4-6",
             max_tokens=2048,
             system=SYSTEM_PROMPT,
             messages=[
