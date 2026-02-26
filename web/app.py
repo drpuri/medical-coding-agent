@@ -5,16 +5,17 @@ Then open http://localhost:5000
 """
 
 import os
-import sys
 import json
 from flask import Flask, render_template, request, jsonify
 import anthropic
 
-# Allow importing system_prompt from parent directory
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from system_prompt import SYSTEM_PROMPT
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'),
+    static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+)
 
 
 def get_client():
