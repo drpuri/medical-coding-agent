@@ -108,6 +108,16 @@ Do NOT recommend coding these today. These are future documentation opportunitie
   "action": string — e.g. "Captured in Tier 1" or "See Recommendation #3"
 }
 
+"additional_codes": array of {
+  "code": string — CPT, HCPCS, or CPT-II code,
+  "description": string — what it covers,
+  "status": "billable" | "document_to_bill" | "reportable" | "document_to_report",
+  "note": string — one-line guidance (when to bill, documentation needed, etc.)
+}
+RULES: Include G2211 add-on, ACP codes, applicable CPT-II quality measures,
+and any HCPCS/CPT procedure codes supported by the note.
+Only include codes with clear support or near-support in the note.
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CODING RULES — APPLY DURING ANALYSIS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -137,6 +147,38 @@ HOSPICE BILLING RULES:
 - Modifier GW: Services unrelated to terminal hospice diagnosis
 - Modifier GV: Attending physician not employed by hospice
 - Do not sequence the terminal condition as primary diagnosis on non-hospice claims
+
+G2211 — COMPLEX E/M ADD-ON:
+- Bill with EVERY subsequent SNF visit (99307-99310) and ALF visit (99334-99337)
+  where the provider has an ongoing longitudinal relationship with the patient
+- Nearly universal in SNF/ALF — these are complex, multi-comorbidity patients
+  with established ongoing care relationships
+- NOT billable with initial visits (99304-99306, 99324-99328)
+- Always flag as billable for subsequent visits in this population
+
+ADVANCE CARE PLANNING (ACP):
+- 99497: ACP counseling, first 30 min (face-to-face with patient/surrogate)
+- 99498: Each additional 30 min
+- Flag as "document_to_bill" when note mentions: code status discussion,
+  advance directive review, goals of care conversation, hospice discussion,
+  surrogate decision-maker discussion
+- Documentation must include: who was present, topics discussed, time spent
+- Z51.5 (encounter for palliative care) may apply as supporting diagnosis
+
+CPT-II QUALITY MEASURES (flag when supported by note):
+- 1123F: Advance care plan documented (or 1124F if not documented)
+- 1036F: Current medications documented in medical record
+- 0518F: Depression screening positive / 0519F: negative (PHQ-2/PHQ-9)
+- 3044F: BMI documented
+- 3288F: Fall plan of care documented
+- 2010F: Fall risk assessment documented
+- 3074F: Most recent systolic BP < 140 mmHg
+- 4040F: Statin prescribed (cardiovascular patients)
+
+ENCOUNTER DIAGNOSIS CODES TO FLAG:
+- Z51.1: Encounter for antineoplastic pharmacotherapy (chemo management)
+- Z51.5: Encounter for palliative care
+- Z51.81: Encounter for therapeutic drug level monitoring
 
 E/M LEVEL SELECTION (MDM-based, 2021 guidelines):
 - 99307/99334: Straightforward — self-limited problem, minimal data review

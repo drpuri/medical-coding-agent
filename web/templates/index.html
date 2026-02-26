@@ -244,6 +244,16 @@
     .enrich-loading { padding: 24px; text-align: center; }
     .enrich-loading .loading-bar { margin: 0 auto 8px; }
 
+    .addl-code-card { background: var(--white); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; }
+    .addl-code-card.addl-billable { border-left: 3px solid var(--ok); }
+    .addl-code-card.addl-action { border-left: 3px solid var(--amber); }
+    .addl-code-card.addl-report { border-left: 3px solid var(--accent); }
+    .addl-code-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .addl-code-badge { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; background: var(--surface); padding: 2px 8px; border-radius: 4px; color: var(--accent); }
+    .addl-code-desc { font-weight: 500; flex: 1; }
+    .addl-code-status { font-size: 16px; }
+    .addl-code-note { font-size: 12px; color: var(--ink-soft); }
+
     /* ── View Toggle ── */
     .view-toggle {
       display: flex;
@@ -911,12 +921,13 @@
 
   // ── Section detection for progress ──
   var SECTIONS = [
-    { key: '"hcc_scorecard"', label: 'Finalizing HCC scorecard...', pct: 90 },
-    { key: '"tier3"', label: 'Checking documentation flags...', pct: 78 },
-    { key: '"tier2"', label: 'Evaluating clinical decisions...', pct: 62 },
-    { key: '"tier1"', label: 'Analyzing diagnoses...', pct: 42 },
-    { key: '"em_code"', label: 'Evaluating E/M level...', pct: 28 },
-    { key: '"billing_alerts"', label: 'Checking billing alerts...', pct: 16 },
+    { key: '"additional_codes"', label: 'Checking quality measures & add-on codes...', pct: 92 },
+    { key: '"hcc_scorecard"', label: 'Finalizing HCC scorecard...', pct: 84 },
+    { key: '"tier3"', label: 'Checking documentation flags...', pct: 72 },
+    { key: '"tier2"', label: 'Evaluating clinical decisions...', pct: 58 },
+    { key: '"tier1"', label: 'Analyzing diagnoses...', pct: 40 },
+    { key: '"em_code"', label: 'Evaluating E/M level...', pct: 26 },
+    { key: '"billing_alerts"', label: 'Checking billing alerts...', pct: 14 },
     { key: '"summary"', label: 'Building summary...', pct: 5 }
   ];
 
@@ -1077,6 +1088,11 @@
     if (d.tier3 && d.tier3.length > 0) {
       html += '<div class="section-header">Tier 3 — Documentation Flags <span class="section-count">' + d.tier3.length + ' items</span></div>';
       d.tier3.forEach(function(item) { html += renderTier3Item(item); });
+    }
+
+    // Additional Codes (G2211, CPT-II, ACP, HCPCS)
+    if (d.additional_codes && d.additional_codes.length > 0) {
+      html += renderAdditionalCodes(d.additional_codes);
     }
 
     // Frailty
@@ -1411,6 +1427,28 @@
     html += '</div>';
 
     html += '</div></div>';
+    return html;
+  }
+
+  // ── Additional Codes (G2211, CPT-II, ACP, HCPCS) ──
+  function renderAdditionalCodes(codes) {
+    var html = '<div class="section-header">Additional Codes &amp; Quality Measures <span class="section-count">' + codes.length + ' items</span></div>';
+    codes.forEach(function(item) {
+      var statusClass = 'addl-billable';
+      var statusIcon = '\u2705';
+      if (item.status === 'document_to_bill') { statusClass = 'addl-action'; statusIcon = '\u26A0\uFE0F'; }
+      else if (item.status === 'reportable') { statusClass = 'addl-report'; statusIcon = '\uD83D\uDCCA'; }
+      else if (item.status === 'document_to_report') { statusClass = 'addl-action'; statusIcon = '\u26A0\uFE0F'; }
+
+      html += '<div class="addl-code-card ' + statusClass + '">' +
+        '<div class="addl-code-header">' +
+          '<span class="addl-code-badge">' + escapeHtml(item.code) + '</span>' +
+          '<span class="addl-code-desc">' + escapeHtml(item.description) + '</span>' +
+          '<span class="addl-code-status">' + statusIcon + '</span>' +
+        '</div>' +
+        '<div class="addl-code-note">' + escapeHtml(item.note) + '</div>' +
+      '</div>';
+    });
     return html;
   }
 
