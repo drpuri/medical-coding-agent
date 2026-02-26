@@ -741,10 +741,25 @@
       white-space: pre-wrap; color: var(--ink);
     }
 
+    /* ── Mobile HCC collapse ── */
+    .hcc-collapse-btn {
+      display: none;
+      margin-left: auto;
+      font-size: 11px;
+      color: inherit;
+      opacity: 0.6;
+      transition: transform 0.2s;
+    }
+    .hcc-sidebar.mobile-collapsed .hcc-collapse-btn { transform: rotate(-90deg); }
+    .hcc-sidebar.mobile-collapsed .hcc-sidebar-body,
+    .hcc-sidebar.mobile-collapsed .hcc-raf-total { display: none; }
+
     /* ── Responsive ── */
     @media (max-width: 1100px) {
       .content-layout { grid-template-columns: 1fr; }
       .hcc-sidebar { position: static; }
+      .hcc-collapse-btn { display: inline-block; }
+      .hcc-sidebar-header { cursor: pointer; }
     }
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; }
@@ -762,7 +777,7 @@
   </div>
   <div style="display:flex;align-items:center;gap:16px">
     <span class="header-badge">De-identified notes only</span>
-    <span class="header-badge" style="opacity:0.5">v2.0.0</span>
+    <span class="header-badge" style="opacity:0.5">v2.1.0</span>
   </div>
 </header>
 
@@ -946,8 +961,8 @@
       '</div>';
 
     // Content layout: main + HCC sidebar
-    html += '<div class="content-layout">';
-    html += '<div class="content-main" id="content-main">';
+    html += '<div class="content-layout" id="view-scope">';
+    html += '<div class="content-main">';
 
     // Billing Alerts
     html += renderBillingAlerts(d.billing_alerts || []);
@@ -1035,9 +1050,9 @@
     currentView = view;
     document.getElementById('toggle-provider').className = 'view-toggle-btn' + (view === 'provider' ? ' active' : '');
     document.getElementById('toggle-detailed').className = 'view-toggle-btn' + (view === 'detailed' ? ' active' : '');
-    var main = document.getElementById('content-main');
-    if (main) {
-      main.className = 'content-main' + (view === 'detailed' ? ' view-detailed' : '');
+    var scope = document.getElementById('view-scope');
+    if (scope) {
+      scope.className = 'content-layout' + (view === 'detailed' ? ' view-detailed' : '');
     }
   }
 
@@ -1206,8 +1221,8 @@
     if (!scorecard || scorecard.length === 0) return '';
 
     var totalRaf = 0;
-    var html = '<div class="hcc-sidebar">' +
-      '<div class="hcc-sidebar-header">HCC Capture Scorecard</div>' +
+    var html = '<div class="hcc-sidebar" id="hcc-sidebar">' +
+      '<div class="hcc-sidebar-header" onclick="document.getElementById(\'hcc-sidebar\').classList.toggle(\'mobile-collapsed\')">HCC Capture Scorecard <span class="hcc-collapse-btn">\u25BC</span></div>' +
       '<div class="hcc-sidebar-body">';
 
     scorecard.forEach(function(item) {
@@ -1356,7 +1371,7 @@
         '<div class="copy-block-label">Add to note</div>' +
         '<div class="copy-block-text">' + escapeHtml(text) + '</div>' +
       '</div>' +
-      '<button class="copy-btn" onclick="copyText(this, ' + escapeAttr(text) + ')">Copy</button>' +
+      '<button class="copy-btn">Copy</button>' +
     '</div>';
   }
 
@@ -1372,12 +1387,15 @@
     return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  function escapeAttr(text) {
-    return "'" + String(text).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n') + "'";
-  }
-
-  function copyText(btn, text) {
-    navigator.clipboard.writeText(text).then(function() {
+  // ── Copy: delegated handler, reads text from DOM ──
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.copy-btn');
+    if (!btn) return;
+    var block = btn.closest('.copy-block');
+    if (!block) return;
+    var textEl = block.querySelector('.copy-block-text');
+    if (!textEl) return;
+    navigator.clipboard.writeText(textEl.textContent).then(function() {
       btn.textContent = 'Copied';
       btn.classList.add('copied');
       setTimeout(function() {
@@ -1385,7 +1403,7 @@
         btn.classList.remove('copied');
       }, 1500);
     });
-  }
+  });
 
   function scrollToRec(num) {
     var el = document.getElementById('rec-' + num);
