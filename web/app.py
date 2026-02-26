@@ -119,10 +119,10 @@ def analyze():
     try:
         client = get_client()
         t0 = time.time()
-        logger.info("Starting API call to claude-sonnet-4-6 (max_tokens=16384)")
+        logger.info("Starting API call to claude-sonnet-4-6 (max_tokens=8192)")
         response = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=16384,
+            max_tokens=8192,
             system=SYSTEM_PROMPT,
             messages=[
                 {

@@ -15,6 +15,13 @@ OUTPUT FORMAT — STRICT JSON ONLY
 Return ONLY a valid JSON object. No markdown, no preamble, no text outside the JSON.
 All string values must be plain text — no markdown formatting within strings.
 
+CONCISENESS RULES — CRITICAL FOR PERFORMANCE:
+- Detail/rationale fields: 1-2 sentences max. Be direct, no filler.
+- copy_paste fields: exact clinical language only, no explanatory preamble.
+- Do not repeat information across fields (e.g., don't restate rationale in audit_notes).
+- Omit obvious reasoning — focus on non-obvious clinical/coding logic.
+- If a detail field adds no value beyond what the main fields already say, use a brief phrase.
+
 Every actionable item across tier1, tier2, tier3, and frailty.missing gets a
 globally sequential "rec_num" starting at 1. These numbers are used for
 cross-references (e.g., hcc_scorecard entries link to rec_num values).
