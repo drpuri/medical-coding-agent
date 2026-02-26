@@ -20,7 +20,9 @@ CONCISENESS RULES — CRITICAL FOR PERFORMANCE:
 - copy_paste fields: exact clinical language only, no explanatory preamble.
 - Do not repeat information across fields (e.g., don't restate rationale in audit_notes).
 - Omit obvious reasoning — focus on non-obvious clinical/coding logic.
-- If a detail field adds no value beyond what the main fields already say, use a brief phrase.
+- If a detail field adds no value beyond what the main fields already say, set it to null.
+- Tier 3 items: keep to essential fields only. Most notes yield 0-3 tier3 items.
+- Do not invent tier2/tier3 items just to fill out the response. Only include genuinely relevant items.
 
 Every actionable item across tier1, tier2, tier3, and frailty.missing gets a
 globally sequential "rec_num" starting at 1. These numbers are used for
@@ -67,10 +69,10 @@ Always include green confirmations for setting, hospice, and split/shared.
   "status": "supported" | "action_needed",
   "action_brief": string or null — one-line action if action_needed,
   "copy_paste": string or null — exact documentation language to add to note,
-  "rationale": string — full coding rationale (detailed view),
-  "specificity": string — specificity discussion (detailed view),
-  "alternatives": string or null — alternative codes with reasoning (detailed view),
-  "audit_notes": string — audit defensibility notes (detailed view)
+  "rationale": string — 1-2 sentence coding rationale (detailed view), or null if obvious,
+  "specificity": string — specificity note (detailed view), or null if code is maximally specific,
+  "alternatives": string or null — alternative codes only if meaningfully different,
+  "audit_notes": string or null — only if non-obvious audit risk exists
 }
 RULES: Only conditions explicitly addressed in Assessment & Plan.
 Include companion codes as separate entries (e.g. I50.22 alongside I13.0).
@@ -88,9 +90,9 @@ copy_paste must be ready to paste directly into a clinical note.
     "copy_paste": string — documentation language for this option,
     "orders": string or null — suggested diagnostic orders
   },
-  "detail_differential": string — full differential discussion (detailed view),
-  "detail_compliance": string or null — CMS compliance, F-tag refs (detailed view),
-  "detail_audit": string — audit considerations (detailed view)
+  "detail_differential": string or null — brief differential if non-obvious,
+  "detail_compliance": string or null — CMS compliance note only if relevant,
+  "detail_audit": string or null — audit note only if non-obvious risk
 }
 RULES: Conditions referenced in exam/HPI/medications but not in A&P.
 Also clinical findings needing a provider decision (unaddressed exam findings,
@@ -105,8 +107,8 @@ If one option leads to an HCC capture, include the hcc field.
   "hcc": {"category": string, "raf": string} or null,
   "why_flagged": string — one-line reason,
   "copy_paste": string — what provider would need to document to make codeable,
-  "detail_rationale": string — full explanation (detailed view),
-  "detail_screening": string or null — screening recommendations (detailed view)
+  "detail_rationale": string or null — brief explanation only if non-obvious,
+  "detail_screening": string or null — screening recommendation only if actionable
 }
 RULES: Conditions in PMH/history not connected to today's clinical reasoning.
 Do NOT recommend coding these today. These are future documentation opportunities.
@@ -144,9 +146,9 @@ Do NOT recommend coding these today. These are future documentation opportunitie
     "copy_paste": string or null
   },
   "applicable_measures": array of string — HEDIS measures excluded if qualifying,
-  "detail_criteria": string — full NCQA criteria explanation (detailed view),
-  "detail_measure_notes": string — measure-specific notes (detailed view),
-  "detail_recapture": string — annual recapture notes (detailed view),
+  "detail_criteria": string or null — brief NCQA criteria note if non-obvious,
+  "detail_measure_notes": string or null — measure note only if specific to this patient,
+  "detail_recapture": string or null — recapture note only if relevant,
   "disclaimer": "Frailty and advanced illness logic based on CMS HEDIS specifications. Validate against current NCQA value sets for production use."
 }
 
