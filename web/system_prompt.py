@@ -215,119 +215,33 @@ NEVER DO THESE:
 - Do not conflate ALF and SNF E/M code families
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FRAILTY & ADVANCED ILLNESS VALUE SETS (NCQA/HEDIS)
+FRAILTY & ADVANCED ILLNESS (NCQA/HEDIS)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-ADVANCED ILLNESS VALUE SET — ICD-10-CM:
-  Creutzfeldt-Jakob disease: A81.00, A81.01, A81.09
-  Malignant neoplasm of pancreas: C25.0-C25.4, C25.7-C25.9
-  Malignant neoplasm of brain: C71.0-C71.9
-  Secondary malignant neoplasm of lymph nodes: C77.0-C77.5, C77.8-C77.9
-  Secondary malignant neoplasm of lung: C78.00-C78.02
-  Secondary malignant neoplasm of mediastinum: C78.1
-  Secondary malignant neoplasm of pleura: C78.2
-  Secondary malignant neoplasm of respiratory organs: C78.30, C78.39
-  Secondary malignant neoplasm of small intestine: C78.4
-  Secondary malignant neoplasm of large intestine/rectum: C78.5
-  Secondary malignant neoplasm of retroperitoneum/peritoneum: C78.6
-  Secondary malignant neoplasm of liver: C78.7
-  Secondary malignant neoplasm of other digestive organs: C78.80, C78.89
-  Secondary malignant neoplasm of kidney: C79.00-C79.02
-  Secondary malignant neoplasm of bladder/urinary organs: C79.10, C79.11, C79.19
-  Secondary malignant neoplasm of skin: C79.2
-  Secondary malignant neoplasm of brain: C79.31
-  Secondary malignant neoplasm of cerebral meninges: C79.32
-  Secondary malignant neoplasm of nervous system: C79.40, C79.49
-  Secondary malignant neoplasm of bone/bone marrow: C79.51, C79.52
-  Secondary malignant neoplasm of ovary: C79.60-C79.63
-  Secondary malignant neoplasm of adrenal gland: C79.70-C79.72
-  Secondary malignant neoplasm of breast/genital organs: C79.81, C79.82
-  Secondary malignant neoplasm of other/unspecified sites: C79.89, C79.9
-  Leukemia not in remission: C91.00, C92.00, C93.00, C93.90, C93.Z0, C94.30
-  Leukemia in relapse: C91.02, C92.02, C93.02, C93.92, C93.Z2, C94.32
-  Dementia (all subtypes):
-    F01.50, F01.511, F01.518, F01.52-F01.54,
-    F01.A0, F01.A11, F01.A18, F01.A2-F01.A4,
-    F01.B0, F01.B11, F01.B18, F01.B2-F01.B4,
-    F01.C0, F01.C11, F01.C18, F01.C2-F01.C4,
-    F02.80, F02.811, F02.818, F02.82-F02.84,
-    F02.A0, F02.A11, F02.A18, F02.A2-F02.A4,
-    F02.B0, F02.B11, F02.B18, F02.B2-F02.B4,
-    F02.C0, F02.C11, F02.C18, F02.C2-F02.C4,
-    F03.90-F03.911, F03.918, F03.92-F03.94,
-    F03.A0, F03.A11, F03.A18, F03.A2-F03.A4,
-    F03.B0, F03.B11, F03.B18, F03.B2-F03.B4,
-    F03.C0, F03.C11, F03.C18, F03.C2-F03.C4,
-    F10.27, F10.97
-  Amnestic disorder: F04
-  Alcohol-induced persisting amnestic disorder: F10.96
-  Alzheimer's disease: G30.0, G30.1, G30.8, G30.9
-  Huntington's disease: G10
-  Amyotrophic lateral sclerosis: G12.21
-  Parkinson's disease: G20.A1, G20.A2, G20.B1, G20.B2, G20.C
-  Degenerative diseases of nervous system: G31.01, G31.09, G31.83
-  Multiple sclerosis: G35
-  Heart failure: I09.81, I11.0, I13.0, I13.2, I50.1, I50.20-I50.23,
-    I50.30-I50.33, I50.40-I50.43, I50.810-I50.814, I50.82-I50.84,
-    I50.89, I50.9
-  Chronic kidney disease stage 5 / ESRD: I12.0, I13.11, I13.2, N18.5, N18.6
-  Emphysema: J43.0-J43.2, J43.8, J43.9, J98.2, J98.3
-  Chronic respiratory conditions (chemical): J68.4
-  Pulmonary fibrosis: J84.10, J84.112, J84.170, J84.178
-  Respiratory failure: J96.10-J96.12, J96.20-J96.22, J96.90-J96.92
-  Alcoholic hepatic disease: K70.10, K70.11, K70.2, K70.30, K70.31,
-    K70.40, K70.41, K70.9
-  Hepatic disease: K74.00-K74.02, K74.1, K74.2, K74.4, K74.5, K74.60, K74.69
-  End stage renal disease: N18.5, N18.6
+ADVANCED ILLNESS CATEGORIES (use standard ICD-10-CM codes):
+  Prion diseases (A81.x), metastatic cancer (C77-C79.x), pancreatic cancer (C25.x),
+  brain cancer (C71.x), leukemia not in remission/relapse, all dementia subtypes
+  (F01-F03.x, F10.27, F10.97), amnestic disorders (F04, F10.96),
+  Alzheimer's (G30.x), Huntington's (G10), ALS (G12.21), Parkinson's (G20.x),
+  neurodegenerative diseases (G31.01, G31.09, G31.83), MS (G35),
+  heart failure (I50.x, I11.0, I13.0, I13.2), CKD stage 5/ESRD (N18.5, N18.6),
+  emphysema (J43.x), pulmonary fibrosis (J84.1x), respiratory failure (J96.1x-J96.9x),
+  alcoholic/chronic liver disease (K70.x, K74.x)
 
 DEMENTIA MEDICATIONS (substitute for advanced illness requirement):
-  Cholinesterase inhibitors: donepezil, galantamine, rivastigmine
-  NMDA antagonist: memantine
-  Combination: donepezil-memantine
+  donepezil, galantamine, rivastigmine, memantine, donepezil-memantine
 
-FRAILTY VALUE SET — ICD-10-CM:
-  Pressure ulcer: L89.000-L89.96
-  Muscle wasting: M62.50
-  Muscle weakness (generalized): M62.81
-  Sarcopenia: M62.84
-  Difficulty walking: R26.2
-  Other gait/mobility abnormalities: R26.89
-  Unspecified gait/mobility abnormalities: R26.9
-  Weakness: R53.1
-  Other malaise: R53.81
-  Age-related physical debility: R54
-  Adult failure to thrive: R62.7
-  Abnormal weight loss: R63.4
-  Underweight: R63.6
-  Cachexia: R64
-  Falls: R29.6, W01.0XXA-W01.198S, W06.XXXA-W06.XXXS,
-    W07.XXXA-W07.XXXS, W08.XXXA-W08.XXXS,
-    W10.0XXA-W10.9XXS, W18.00XA-W18.39XS,
-    W19.XXXA-W19.XXXS
-  History of falling: Z91.81
-  Place of occurrence — residential institution: Y92.199
-  Living in residential institution: Z59.3
-  Limitation of activities due to disability: Z73.6
-  Bed confinement status: Z74.01
-  Other reduced mobility: Z74.09
-  Need for assistance with personal care: Z74.1
-  Need for assistance at home: Z74.2
-  Need for continuous supervision: Z74.3
-  Other care provider dependency: Z74.8
-  Care provider dependency unspecified: Z74.9
-  Dependence on respirator/ventilator: Z99.11
-  Dependence on wheelchair: Z99.3
-  Dependence on supplemental oxygen: Z99.81
-  Dependence on other enabling machines/devices: Z99.89
+FRAILTY INDICATORS (use standard ICD-10-CM codes):
+  Pressure ulcers (L89.x), muscle wasting/weakness/sarcopenia (M62.5x, M62.81, M62.84),
+  gait/mobility abnormalities (R26.x), weakness/malaise (R53.x), age-related debility (R54),
+  failure to thrive (R62.7), weight loss/underweight/cachexia (R63.4, R63.6, R64),
+  falls (W01-W19.x) and fall history (Z91.81), institutional residence (Z59.3),
+  activity limitation (Z73.6), bed confinement (Z74.01), reduced mobility (Z74.09),
+  ADL assistance needs (Z74.1-Z74.3), care dependency (Z74.8, Z74.9),
+  device dependence: ventilator (Z99.11), wheelchair (Z99.3), oxygen (Z99.81)
 
-FRAILTY VALUE SET — CPT/HCPCS (flag if noted in care context):
-  Cane: E0100, E0105
-  Walker: E0130, E0135, E0140, E0141, E0143, E0144, E0147-E0149
-  Commode: E0163, E0165, E0167, E0168, E0170, E0171
-  Hospital bed: E0250-E0266, E0270, E0290-E0304
-  Oxygen: E0424, E0425, E0430, E0431, E0433-E0444
-  Wheelchair: E1130-E1298
-  Skilled nursing services: G0162, G0299, G0300, G0493, G0494
+FRAILTY DME (flag if noted in care context):
+  Cane, walker, commode, hospital bed, oxygen equipment, wheelchair, skilled nursing services
 
 FRAILTY & ADVANCED ILLNESS INTERACTION RULES:
   1. Advanced illness requires: 2+ claims on DIFFERENT dates with an advanced
