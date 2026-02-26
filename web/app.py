@@ -59,23 +59,43 @@ def analyze():
         client = get_client()
         response = client.messages.create(
             model="claude-opus-4-6",
-            max_tokens=5120,
+            max_tokens=6144,
             system=SYSTEM_PROMPT,
             messages=[
                 {
                     "role": "user",
-                    "content": f"Please analyze this de-identified clinical note and provide coding recommendations following your tiered framework:\n\n{note_content}"
+                    "content": f"Analyze this de-identified clinical note. Return ONLY valid JSON following the schema in your instructions.\n\n{note_content}"
                 }
             ]
         )
 
-        return jsonify({
-            "analysis": response.content[0].text,
-            "usage": {
-                "input_tokens": response.usage.input_tokens,
-                "output_tokens": response.usage.output_tokens
-            }
-        })
+        raw_text = response.content[0].text
+        usage = {
+            "input_tokens": response.usage.input_tokens,
+            "output_tokens": response.usage.output_tokens
+        }
+
+        # Try to parse JSON from the response
+        try:
+            # Strip any markdown code fences the model may wrap around JSON
+            cleaned = raw_text.strip()
+            if cleaned.startswith("```"):
+                cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned[3:]
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3].strip()
+            structured_data = json.loads(cleaned)
+            return jsonify({
+                "structured": True,
+                "data": structured_data,
+                "usage": usage
+            })
+        except (json.JSONDecodeError, ValueError):
+            # Fallback: return raw text for legacy rendering
+            return jsonify({
+                "structured": False,
+                "analysis": raw_text,
+                "usage": usage
+            })
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 500
@@ -127,6 +147,6 @@ def followup():
 
 if __name__ == "__main__":
     if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("\n⚠️  ANTHROPIC_API_KEY not set.")
+        print("\n\u26a0\ufe0f  ANTHROPIC_API_KEY not set.")
         print("Run: export ANTHROPIC_API_KEY=your_key_here\n")
     app.run()
