@@ -32,25 +32,11 @@ SECTION ORDER (must follow this exact sequence):
   7. hcc_scorecard (array)
   8. additional_codes (array)
 
-Example output structure:
-{"em_code":"99308","em_brief":"...","diagnoses_count":5,...}
----SECTION---
-[{"level":"green","message":"..."},...]
----SECTION---
-{"code":"99308","justification":"..."}
----SECTION---
-[{"rec_num":1,"code":"I13.0",...},...]
----SECTION---
-[]
----SECTION---
-[]
----SECTION---
-[{"condition":"CHF","hcc_category":"HCC 85",...},...]
----SECTION---
-[{"code":"G2211","description":"...",...},...]
+Example (8 sections, 7 delimiters):
+{summary}---SECTION---[billing_alerts]---SECTION---{em_code}---SECTION---[tier1]---SECTION---[tier2]---SECTION---[tier3]---SECTION---[hcc_scorecard]---SECTION---[additional_codes]
 
 CONCISENESS RULES — CRITICAL FOR PERFORMANCE:
-- copy_paste fields: exact clinical language only, no explanatory preamble.
+- Target total output under 1500 tokens. Brevity is critical.
 - Do not invent tier2/tier3 items just to fill out the response. Only genuinely relevant items.
 - Most notes yield 0-3 tier3 items.
 
@@ -174,16 +160,11 @@ HOSPICE BILLING RULES:
 - Do not sequence the terminal condition as primary diagnosis on non-hospice claims
 
 G2211 — COMPLEX E/M ADD-ON:
-- Billable ONLY with office/outpatient E/M (99202-99215) and, starting 2026,
-  home/residence E/M (99341-99350)
-- NOT billable with SNF codes (99307-99310) or domiciliary codes (99334-99337)
-- NOT billable under POS 31 (SNF) or POS 32 (Nursing Facility)
-- IS billable for ALF and independent living patients when the visit is billed
-  under office/outpatient or home/residence codes (POS 13 or POS 12, not POS 32)
-- Requires ongoing longitudinal relationship — provider serves as continuing
-  focal point for the patient's health care needs
-- If the note does not indicate POS, flag G2211 as "billable if not POS 31/32"
-  and prompt the provider to confirm the billing setting
+- Billable with office/outpatient E/M (99202-99215) and home/residence E/M (99341-99350, 2026+)
+- NOT billable with SNF (99307-99310), domiciliary (99334-99337), POS 31, or POS 32
+- IS billable for ALF/independent living under POS 13 or POS 12
+- Requires longitudinal relationship as continuing focal point
+- If POS unknown, flag as "billable if not POS 31/32" and prompt provider to confirm
 
 ADVANCE CARE PLANNING (ACP):
 - 99497: ACP counseling, first 30 min (face-to-face with patient/surrogate)
@@ -195,47 +176,21 @@ ADVANCE CARE PLANNING (ACP):
 - Z51.5 (encounter for palliative care) may apply as supporting diagnosis
 
 APCM — ADVANCED PRIMARY CARE MANAGEMENT (G0556, G0557, G0558):
-- Monthly per-patient code (not per-visit, not time-based)
-- G0556: 0-1 qualifying chronic condition
-- G0557: 2+ qualifying chronic conditions
-- G0558: 2+ qualifying chronic conditions AND patient is QMB (dual-eligible)
-- Chronic conditions must be expected to last 12+ months and place patient at
-  significant risk of death, exacerbation, or functional decline
-- Requires provider to be patient's primary care clinician and focal point for
-  all health care needs, with 24/7 access and care transition management
-- Patient consent required (verbal or written, one-time, documented in record)
-- CANNOT bill same month/same practitioner as CCM (99490/99491), PCM, or TCM
-- CAN bill same month as RPM, RTM, and E/M visits
-- CMS has NOT published explicit POS restrictions for APCM — no confirmed
-  exclusion for POS 31 or POS 32, but guidance is ambiguous for facility settings
-- For SNF/ALF patients: flag APCM as a monthly billing opportunity. Most patients
-  qualify at G0557/G0558 level. Note that APCM and CCM are mutually exclusive —
-  the practice must choose one per patient per month
-- New patients require an initiating E/M visit before APCM can begin
-- CY2026 adds behavioral health integration add-ons: G0568, G0569, G0570
+- Monthly per-patient code; G0556 (0-1 chronic), G0557 (2+), G0558 (2+ AND QMB)
+- Chronic condition = expected 12+ months, risk of death/exacerbation/functional decline
+- Requires: primary care clinician as focal point, 24/7 access, patient consent (one-time)
+- CANNOT bill same month as CCM/PCM/TCM; CAN bill with RPM, RTM, E/M
+- No confirmed POS exclusion for 31/32, but guidance is ambiguous for facility settings
+- SNF/ALF: flag as monthly opportunity, most qualify at G0557/G0558; mutually exclusive with CCM
+- New patients need initiating E/M first; CY2026 adds BHI add-ons G0568-G0570
 
 CCM — CHRONIC CARE MANAGEMENT (99490, 99491 families):
-- Monthly per-patient codes billed for non-face-to-face care management time
-- 99490 + 99439: clinical staff time, 20-min increments (99439 up to 2x/month)
-- 99491 + 99437: physician/QHP personal time, 30-min increments (99437 up to 2x/month)
-- 99490 family and 99491 family are MUTUALLY EXCLUSIVE in the same month
-- Patient must have 2+ chronic conditions expected to last 12+ months with
-  significant risk of death, exacerbation, or functional decline
-- Patient consent required (verbal or written, one-time, documented in record)
-- Comprehensive electronic care plan required in EHR
-- POS RULES FOR SNF/ALF:
-  * NOT billable during active Medicare Part A SNF stay (POS 31) — facility
-    already paid for care coordination under consolidated billing
-  * IS billable for Part B / custodial SNF patients (POS 32) — most common
-    scenario for long-stay nursing facility residents
-  * IS billable for ALF residents (POS 13) — no Medicare facility payment applies
-- CAN bill same month as E/M visits (different day; same day requires modifier -25)
-- CANNOT bill same month as APCM, PCM, TCM, home health supervision (G0181),
-  hospice supervision (G0182), or ESRD monthly services
-- CAN bill same month as RPM and RTM (time cannot be double-counted)
-- For this population: nearly all SNF/ALF patients meet eligibility criteria.
-  Flag CCM as an ongoing monthly billing opportunity when not already enrolled.
-  If patient receives APCM, do not recommend CCM (and vice versa)
+- Monthly non-face-to-face care management; requires 2+ chronic conditions (same definition as APCM), patient consent (one-time), and EHR care plan
+- 99490+99439: staff time, 20-min increments; 99491+99437: physician time, 30-min increments; families are mutually exclusive per month
+- POS RULES: NOT billable during Part A SNF stay (POS 31); IS billable for custodial SNF (POS 32) and ALF (POS 13)
+- CAN bill with E/M (different day; same day needs -25) and RPM/RTM (no double-counting time)
+- CANNOT bill same month as APCM/PCM/TCM/G0181/G0182/ESRD monthly
+- SNF/ALF: nearly all patients qualify — flag as monthly opportunity if not enrolled in APCM
 
 CPT-II QUALITY MEASURES (flag when supported by note):
 - 1123F: Advance care plan documented (or 1124F if not documented)
