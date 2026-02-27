@@ -140,7 +140,7 @@ def analyze():
             accumulated = ""
 
             with client.messages.stream(
-                model="claude-sonnet-4-6",
+                model="claude-opus-4-6",
                 max_tokens=4096,
                 system=SYSTEM_PROMPT_PROVIDER,
                 messages=[
@@ -201,7 +201,7 @@ def enrich():
         t0 = time.time()
         logger.info("Starting ENRICH call (max_tokens=4096)")
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-opus-4-6",
             max_tokens=4096,
             system=SYSTEM_PROMPT_ENRICH,
             messages=[
@@ -271,7 +271,7 @@ def copypaste():
         t0 = time.time()
         logger.info("Starting COPYPASTE call (max_tokens=4096)")
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-opus-4-6",
             max_tokens=4096,
             system=SYSTEM_PROMPT_COPYPASTE,
             messages=[
@@ -324,7 +324,7 @@ def followup():
     try:
         client = get_client()
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-opus-4-6",
             max_tokens=2048,
             system=SYSTEM_PROMPT_PROVIDER,
             messages=[
