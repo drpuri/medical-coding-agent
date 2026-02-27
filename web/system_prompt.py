@@ -102,10 +102,9 @@ PMH-only conditions do NOT belong here — there must be a reference outside PMH
 Note: "PMH of X" or "history of X" phrasing within the HPI is still a PMH reference,
 not an active HPI finding. An active HPI reference means the condition is being
 discussed as relevant to today's presentation (symptoms, workup, management).
-CLINICAL CORRELATIONS: Flag tier2 items when clinical findings imply a diagnosis
-the provider hasn't addressed — e.g. loose stools + active antibiotics → possible
-C. difficile, new edema + weight gain → fluid overload, falling + anticoagulant →
-bleed risk assessment.
+CLINICAL CORRELATIONS: Flag tier2 items when a combination of findings in the note
+(symptoms, medications, labs, exam) implies a diagnosis the provider hasn't addressed.
+Use your clinical reasoning — do not limit to any fixed list of patterns.
 
 "tier3": array of {
   "rec_num": number,
