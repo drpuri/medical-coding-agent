@@ -10,6 +10,8 @@ import re
 import time
 import logging
 from flask import Flask, render_template, request, jsonify, Response, stream_with_context
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import anthropic
 
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +38,13 @@ app = Flask(
     __name__,
     template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'),
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[],
+    storage_uri="memory://",
 )
 
 
@@ -107,6 +116,7 @@ def index():
 
 
 @app.route("/analyze", methods=["POST"])
+@limiter.limit("10/minute")
 def analyze():
     """Call 1: Streaming provider-view analysis via SSE."""
     data = request.get_json()
@@ -146,7 +156,7 @@ def analyze():
                 messages=[
                     {
                         "role": "user",
-                        "content": f"Analyze this de-identified clinical note. Return ONLY valid JSON following the schema in your instructions.\n\n{note_content}"
+                        "content": f"Analyze this de-identified clinical note. Return ONLY valid JSON following the schema in your instructions.\n\n<clinical_note>\n{note_content}\n</clinical_note>"
                     }
                 ]
             ) as stream:
@@ -171,7 +181,7 @@ def analyze():
 
         except Exception as e:
             logger.error("PROVIDER stream error: %s", str(e))
-            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'error': 'Analysis failed. Please try again.'})}\n\n"
 
     return Response(
         stream_with_context(generate()),
@@ -185,6 +195,7 @@ def analyze():
 
 
 @app.route("/enrich", methods=["POST"])
+@limiter.limit("15/minute")
 def enrich():
     """Call 2: Coder-level detail enrichment + frailty analysis."""
     data = request.get_json()
@@ -207,7 +218,7 @@ def enrich():
             messages=[
                 {
                     "role": "user",
-                    "content": f"Clinical note:\n\n{note}"
+                    "content": f"Clinical note:\n\n<clinical_note>\n{note}\n</clinical_note>"
                 },
                 {
                     "role": "assistant",
@@ -247,14 +258,18 @@ def enrich():
             })
 
     except ValueError as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error("ENRICH ValueError: %s", str(e))
+        return jsonify({"error": "Enrichment failed. Please try again."}), 500
     except anthropic.APIError as e:
-        return jsonify({"error": f"API error: {str(e)}"}), 500
+        logger.error("ENRICH APIError: %s", str(e))
+        return jsonify({"error": "Enrichment failed. Please try again."}), 500
     except Exception as e:
-        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+        logger.error("ENRICH unexpected error: %s", str(e))
+        return jsonify({"error": "Enrichment failed. Please try again."}), 500
 
 
 @app.route("/copypaste", methods=["POST"])
+@limiter.limit("15/minute")
 def copypaste():
     """On-demand copy-paste documentation language for recommendations."""
     data = request.get_json()
@@ -277,7 +292,7 @@ def copypaste():
             messages=[
                 {
                     "role": "user",
-                    "content": f"Clinical note:\n\n{note}\n\nCoding analysis:\n\n{prior_json}\n\nGenerate copy-paste documentation for each recommendation that needs it."
+                    "content": f"Clinical note:\n\n<clinical_note>\n{note}\n</clinical_note>\n\nCoding analysis:\n\n{prior_json}\n\nGenerate copy-paste documentation for each recommendation that needs it."
                 }
             ]
         )
@@ -304,14 +319,18 @@ def copypaste():
             return jsonify({"error": "Failed to parse copy-paste response"}), 500
 
     except ValueError as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error("COPYPASTE ValueError: %s", str(e))
+        return jsonify({"error": "Copy-paste generation failed. Please try again."}), 500
     except anthropic.APIError as e:
-        return jsonify({"error": f"API error: {str(e)}"}), 500
+        logger.error("COPYPASTE APIError: %s", str(e))
+        return jsonify({"error": "Copy-paste generation failed. Please try again."}), 500
     except Exception as e:
-        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+        logger.error("COPYPASTE unexpected error: %s", str(e))
+        return jsonify({"error": "Copy-paste generation failed. Please try again."}), 500
 
 
 @app.route("/followup", methods=["POST"])
+@limiter.limit("15/minute")
 def followup():
     data = request.get_json()
     note = data.get("note", "").strip()
@@ -330,7 +349,7 @@ def followup():
             messages=[
                 {
                     "role": "user",
-                    "content": f"Please analyze this de-identified clinical note:\n\n{note}"
+                    "content": f"Please analyze this de-identified clinical note:\n\n<clinical_note>\n{note}\n</clinical_note>"
                 },
                 {
                     "role": "assistant",
@@ -348,7 +367,24 @@ def followup():
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error("FOLLOWUP error: %s", str(e))
+        return jsonify({"error": "Follow-up failed. Please try again."}), 500
+
+
+@app.after_request
+def set_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data:; "
+        "connect-src 'self' https://va.vercel-scripts.com"
+    )
+    return response
 
 
 if __name__ == "__main__":
