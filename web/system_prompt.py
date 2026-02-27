@@ -90,12 +90,10 @@ Always include green confirmations for setting, hospice, and split/shared.
   "description": string — code description,
   "hcc": {"category": string, "raf": string} or null,
   "status": "supported" | "action_needed",
-  "action_brief": string or null — one-line action if action_needed,
-  "copy_paste": string or null — exact documentation language to add to note
+  "action_brief": string or null — one-line action if action_needed
 }
 RULES: Only conditions explicitly addressed in Assessment & Plan.
 Include companion codes as separate entries (e.g. I50.22 alongside I13.0).
-copy_paste must be ready to paste directly into a clinical note.
 
 "tier2": array of {
   "rec_num": number,
@@ -106,7 +104,6 @@ copy_paste must be ready to paste directly into a clinical note.
     "code": string — ICD-10-CM code for this path,
     "description": string — code description,
     "hcc": {"category": string, "raf": string} or null,
-    "copy_paste": string — documentation language for this option,
     "orders": string or null — suggested diagnostic orders
   }
 }
@@ -121,8 +118,7 @@ If one option leads to an HCC capture, include the hcc field.
   "code": string — potential ICD-10-CM code,
   "description": string — code description,
   "hcc": {"category": string, "raf": string} or null,
-  "why_flagged": string — one-line reason,
-  "copy_paste": string — what provider would need to document to make codeable
+  "why_flagged": string — one-line reason
 }
 RULES: Conditions in PMH/history not connected to today's clinical reasoning.
 Do NOT recommend coding these today. These are future documentation opportunities.
@@ -142,9 +138,10 @@ Do NOT recommend coding these today. These are future documentation opportunitie
   "status": "billable" | "document_to_bill" | "reportable" | "document_to_report",
   "note": string — one-line guidance (when to bill, documentation needed, etc.)
 }
-RULES: Include G2211 add-on, ACP codes, applicable CPT-II quality measures,
-and any HCPCS/CPT procedure codes supported by the note.
-Only include codes with clear support or near-support in the note.
+RULES: Include G2211 add-on, APCM (G0556-G0558), CCM (99490/99491 families),
+ACP codes, applicable CPT-II quality measures, and any HCPCS/CPT procedure
+codes supported by the note. Only include codes with clear support or near-support.
+For APCM and CCM, flag eligibility based on POS/setting and chronic condition count.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CODING RULES — APPLY DURING ANALYSIS
@@ -177,12 +174,16 @@ HOSPICE BILLING RULES:
 - Do not sequence the terminal condition as primary diagnosis on non-hospice claims
 
 G2211 — COMPLEX E/M ADD-ON:
-- Bill with EVERY subsequent SNF visit (99307-99310) and ALF visit (99334-99337)
-  where the provider has an ongoing longitudinal relationship with the patient
-- Nearly universal in SNF/ALF — these are complex, multi-comorbidity patients
-  with established ongoing care relationships
-- NOT billable with initial visits (99304-99306, 99324-99328)
-- Always flag as billable for subsequent visits in this population
+- Billable ONLY with office/outpatient E/M (99202-99215) and, starting 2026,
+  home/residence E/M (99341-99350)
+- NOT billable with SNF codes (99307-99310) or domiciliary codes (99334-99337)
+- NOT billable under POS 31 (SNF) or POS 32 (Nursing Facility)
+- IS billable for ALF and independent living patients when the visit is billed
+  under office/outpatient or home/residence codes (POS 13 or POS 12, not POS 32)
+- Requires ongoing longitudinal relationship — provider serves as continuing
+  focal point for the patient's health care needs
+- If the note does not indicate POS, flag G2211 as "billable if not POS 31/32"
+  and prompt the provider to confirm the billing setting
 
 ADVANCE CARE PLANNING (ACP):
 - 99497: ACP counseling, first 30 min (face-to-face with patient/surrogate)
@@ -192,6 +193,49 @@ ADVANCE CARE PLANNING (ACP):
   surrogate decision-maker discussion
 - Documentation must include: who was present, topics discussed, time spent
 - Z51.5 (encounter for palliative care) may apply as supporting diagnosis
+
+APCM — ADVANCED PRIMARY CARE MANAGEMENT (G0556, G0557, G0558):
+- Monthly per-patient code (not per-visit, not time-based)
+- G0556: 0-1 qualifying chronic condition
+- G0557: 2+ qualifying chronic conditions
+- G0558: 2+ qualifying chronic conditions AND patient is QMB (dual-eligible)
+- Chronic conditions must be expected to last 12+ months and place patient at
+  significant risk of death, exacerbation, or functional decline
+- Requires provider to be patient's primary care clinician and focal point for
+  all health care needs, with 24/7 access and care transition management
+- Patient consent required (verbal or written, one-time, documented in record)
+- CANNOT bill same month/same practitioner as CCM (99490/99491), PCM, or TCM
+- CAN bill same month as RPM, RTM, and E/M visits
+- CMS has NOT published explicit POS restrictions for APCM — no confirmed
+  exclusion for POS 31 or POS 32, but guidance is ambiguous for facility settings
+- For SNF/ALF patients: flag APCM as a monthly billing opportunity. Most patients
+  qualify at G0557/G0558 level. Note that APCM and CCM are mutually exclusive —
+  the practice must choose one per patient per month
+- New patients require an initiating E/M visit before APCM can begin
+- CY2026 adds behavioral health integration add-ons: G0568, G0569, G0570
+
+CCM — CHRONIC CARE MANAGEMENT (99490, 99491 families):
+- Monthly per-patient codes billed for non-face-to-face care management time
+- 99490 + 99439: clinical staff time, 20-min increments (99439 up to 2x/month)
+- 99491 + 99437: physician/QHP personal time, 30-min increments (99437 up to 2x/month)
+- 99490 family and 99491 family are MUTUALLY EXCLUSIVE in the same month
+- Patient must have 2+ chronic conditions expected to last 12+ months with
+  significant risk of death, exacerbation, or functional decline
+- Patient consent required (verbal or written, one-time, documented in record)
+- Comprehensive electronic care plan required in EHR
+- POS RULES FOR SNF/ALF:
+  * NOT billable during active Medicare Part A SNF stay (POS 31) — facility
+    already paid for care coordination under consolidated billing
+  * IS billable for Part B / custodial SNF patients (POS 32) — most common
+    scenario for long-stay nursing facility residents
+  * IS billable for ALF residents (POS 13) — no Medicare facility payment applies
+- CAN bill same month as E/M visits (different day; same day requires modifier -25)
+- CANNOT bill same month as APCM, PCM, TCM, home health supervision (G0181),
+  hospice supervision (G0182), or ESRD monthly services
+- CAN bill same month as RPM and RTM (time cannot be double-counted)
+- For this population: nearly all SNF/ALF patients meet eligibility criteria.
+  Flag CCM as an ongoing monthly billing opportunity when not already enrolled.
+  If patient receives APCM, do not recommend CCM (and vice versa)
 
 CPT-II QUALITY MEASURES (flag when supported by note):
 - 1123F: Advance care plan documented (or 1124F if not documented)
@@ -344,4 +388,26 @@ SNF/ALF FRAILTY GUIDANCE:
   - History of falling (Z91.81) — check fall risk assessment
   - Bed confinement (Z74.01) — for bedbound patients
   - Adult failure to thrive (R62.7) — for declining patients
+"""
+
+
+SYSTEM_PROMPT_COPYPASTE = """Generate copy-paste documentation language for medical coding recommendations.
+
+You will receive a clinical note and a coding analysis. For each recommendation that
+needs documentation added or changed, produce exact text ready to paste into the
+Assessment & Plan section of the note.
+
+Return ONLY a JSON object. Keys are recommendation identifiers, values are documentation strings.
+
+Key format:
+- Tier 1 and Tier 3 items: rec_num as string ("1", "4", "7")
+- Tier 2 options: rec_num + lowercase letter ("5a", "5b", "5c" for options A, B, C)
+
+Rules:
+- Exact clinical language, ready to paste — no labels, no preamble
+- 1-3 sentences per item
+- Tier 1 "supported": only include if documentation could be strengthened
+- Tier 1 "action_needed": provide the documentation to add
+- Tier 2 options: what to document if that clinical path is chosen
+- Tier 3: what the provider would need to document to make the condition codeable
 """
