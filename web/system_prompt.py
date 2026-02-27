@@ -49,7 +49,6 @@ SECTION SCHEMAS (all fields required unless noted "or null"):
 
 "summary": {
   "em_code": string — E/M CPT code (e.g. "99308"),
-  "em_brief": string — one-line justification,
   "diagnoses_count": number — diagnoses recommended for today's claim,
   "hcc_captured": number — HCC conditions fully supported in tier1,
   "hcc_action_needed": number — HCC conditions needing provider action,
@@ -90,7 +89,6 @@ Include companion codes as separate entries (e.g. I50.22 alongside I13.0).
   "options": array of {
     "label": string — clinical interpretation (e.g. "Dependent edema / immobility"),
     "code": string — ICD-10-CM code for this path,
-    "description": string — code description,
     "hcc": {"category": string, "raf": string} or null,
     "orders": string or null — suggested diagnostic orders
   }
@@ -112,7 +110,6 @@ Use your clinical reasoning — do not limit to any fixed list of patterns.
   "rec_num": number,
   "condition": string — condition name,
   "code": string — potential ICD-10-CM code,
-  "description": string — code description,
   "hcc": {"category": string, "raf": string} or null,
   "why_flagged": string — one-line reason
 }
@@ -127,8 +124,7 @@ Do NOT recommend coding these today. These are future documentation opportunitie
   "hcc_category": string — e.g. "HCC 85",
   "raf": string — e.g. "0.323",
   "status": "captured" | "action_needed" | "opportunity",
-  "rec_num": number or null — links to relevant recommendation,
-  "action": string — e.g. "Captured in Tier 1" or "See Recommendation #3"
+  "rec_num": number or null — links to relevant recommendation
 }
 
 "additional_codes": array of {

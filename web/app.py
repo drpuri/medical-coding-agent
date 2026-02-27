@@ -20,6 +20,16 @@ logger = logging.getLogger(__name__)
 from system_prompt import SYSTEM_PROMPT_PROVIDER, SYSTEM_PROMPT_ENRICH, SYSTEM_PROMPT_COPYPASTE
 import subprocess
 
+
+def cached_system(prompt_text):
+    """Wrap a system prompt string for Anthropic prompt caching."""
+    return [{"type": "text", "text": prompt_text, "cache_control": {"type": "ephemeral"}}]
+
+
+CACHED_PROVIDER = cached_system(SYSTEM_PROMPT_PROVIDER)
+CACHED_ENRICH = cached_system(SYSTEM_PROMPT_ENRICH)
+CACHED_COPYPASTE = cached_system(SYSTEM_PROMPT_COPYPASTE)
+
 def get_version():
     """Get git short hash for version display. Falls back to 'dev'."""
     try:
@@ -155,9 +165,9 @@ def analyze():
             accumulated = ""
 
             with client.messages.stream(
-                model="claude-opus-4-6",
+                model="claude-sonnet-4-6",
                 max_tokens=4096,
-                system=SYSTEM_PROMPT_PROVIDER,
+                system=CACHED_PROVIDER,
                 messages=[
                     {
                         "role": "user",
@@ -174,11 +184,14 @@ def analyze():
             elapsed = time.time() - t0
             usage = {
                 "input_tokens": response.usage.input_tokens,
-                "output_tokens": response.usage.output_tokens
+                "output_tokens": response.usage.output_tokens,
+                "cache_read": getattr(response.usage, 'cache_read_input_tokens', 0),
+                "cache_creation": getattr(response.usage, 'cache_creation_input_tokens', 0),
             }
             logger.info(
-                "PROVIDER stream complete: %.1fs | input=%d output=%d | stop=%s",
+                "PROVIDER stream complete: %.1fs | input=%d output=%d | cache_read=%d cache_create=%d | stop=%s",
                 elapsed, usage["input_tokens"], usage["output_tokens"],
+                usage["cache_read"], usage["cache_creation"],
                 response.stop_reason
             )
 
@@ -219,7 +232,7 @@ def enrich():
         response = client.messages.create(
             model="claude-opus-4-6",
             max_tokens=4096,
-            system=SYSTEM_PROMPT_ENRICH,
+            system=CACHED_ENRICH,
             messages=[
                 {
                     "role": "user",
@@ -240,11 +253,14 @@ def enrich():
         raw_text = response.content[0].text
         usage = {
             "input_tokens": response.usage.input_tokens,
-            "output_tokens": response.usage.output_tokens
+            "output_tokens": response.usage.output_tokens,
+            "cache_read": getattr(response.usage, 'cache_read_input_tokens', 0),
+            "cache_creation": getattr(response.usage, 'cache_creation_input_tokens', 0),
         }
         logger.info(
-            "ENRICH call complete: %.1fs | input=%d output=%d | stop=%s",
+            "ENRICH call complete: %.1fs | input=%d output=%d | cache_read=%d cache_create=%d | stop=%s",
             elapsed, usage["input_tokens"], usage["output_tokens"],
+            usage["cache_read"], usage["cache_creation"],
             response.stop_reason
         )
 
@@ -293,7 +309,7 @@ def copypaste():
         response = client.messages.create(
             model="claude-opus-4-6",
             max_tokens=4096,
-            system=SYSTEM_PROMPT_COPYPASTE,
+            system=CACHED_COPYPASTE,
             messages=[
                 {
                     "role": "user",
@@ -306,11 +322,14 @@ def copypaste():
         raw_text = response.content[0].text
         usage = {
             "input_tokens": response.usage.input_tokens,
-            "output_tokens": response.usage.output_tokens
+            "output_tokens": response.usage.output_tokens,
+            "cache_read": getattr(response.usage, 'cache_read_input_tokens', 0),
+            "cache_creation": getattr(response.usage, 'cache_creation_input_tokens', 0),
         }
         logger.info(
-            "COPYPASTE call complete: %.1fs | input=%d output=%d | stop=%s",
+            "COPYPASTE call complete: %.1fs | input=%d output=%d | cache_read=%d cache_create=%d | stop=%s",
             elapsed, usage["input_tokens"], usage["output_tokens"],
+            usage["cache_read"], usage["cache_creation"],
             response.stop_reason
         )
 
@@ -350,7 +369,7 @@ def followup():
         response = client.messages.create(
             model="claude-opus-4-6",
             max_tokens=2048,
-            system=SYSTEM_PROMPT_PROVIDER,
+            system=CACHED_PROVIDER,
             messages=[
                 {
                     "role": "user",
