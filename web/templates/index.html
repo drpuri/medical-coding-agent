@@ -1455,7 +1455,7 @@
 
     // Tier 1
     if (d.tier1 && d.tier1.length > 0) {
-      html += '<div class="section-header">Tier 1 — Code These Now <span class="section-count">' + d.tier1.length + ' diagnoses</span></div>';
+      html += '<div class="section-header">Codes Supported by Encounter <span class="section-count">' + d.tier1.length + ' diagnoses</span></div>';
       d.tier1.forEach(function(item) { html += renderTier1Card(item); });
     }
 
@@ -2140,7 +2140,7 @@
       </div>
 
       <div class="guide-section-item">
-        <strong>3. Tier 1: Code Now</strong>
+        <strong>3. Codes Supported by Encounter</strong>
         <p>Diagnoses fully supported by the assessment and plan, ready to bill on today's claim. Each recommendation includes the ICD-10 code, rationale, and HCC relevance.</p>
       </div>
 
