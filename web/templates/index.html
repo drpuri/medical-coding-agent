@@ -489,6 +489,32 @@
     }
     .rec-status.action-needed { color: var(--amber); }
 
+    /* ── Copy-paste on-demand button ── */
+    .btn-copypaste {
+      background: none;
+      border: 1px dashed var(--rule);
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      cursor: pointer;
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-copypaste:hover { background: var(--accent-lt); border-color: var(--accent); }
+    .btn-copypaste:disabled { opacity: 0.5; cursor: wait; }
+    .copypaste-spinner {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border: 2px solid var(--rule);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: loading 0.6s linear infinite;
+    }
+
     /* ── Copy-paste blocks ── */
     .copy-block {
       background: var(--surface);
@@ -784,6 +810,216 @@
       .layout { grid-template-columns: 1fr; }
       .panel-left { position: static; height: auto; }
     }
+
+    /* ── User Guide Modal ── */
+    .guide-link {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--ink-mute);
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .guide-link:hover { color: var(--accent); }
+
+    .guide-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 17, 23, 0.55);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+    .guide-overlay.open { display: flex; }
+
+    .guide-panel {
+      background: var(--white);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 640px;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.18);
+    }
+    .guide-close {
+      position: sticky;
+      top: 0;
+      float: right;
+      margin: 16px 16px 0 0;
+      width: 32px; height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--rule);
+      background: var(--white);
+      color: var(--ink-mute);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      transition: all 0.15s;
+    }
+    .guide-close:hover { background: var(--surface); color: var(--ink); }
+
+    .guide-body { padding: 40px 36px 36px; }
+    .guide-body h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 6px;
+    }
+    .guide-body .guide-subtitle {
+      font-size: 14px;
+      color: var(--ink-mute);
+      margin-bottom: 28px;
+    }
+
+    .guide-zone-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin: 32px 0 14px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .guide-zone-label:first-of-type { margin-top: 0; }
+
+    .guide-body h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 22px 0 8px;
+    }
+    .guide-body h3:first-child { margin-top: 0; }
+
+    .guide-body p, .guide-body li {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.7;
+    }
+    .guide-body p { margin-bottom: 10px; }
+    .guide-body ul, .guide-body ol {
+      margin: 0 0 12px 20px;
+    }
+    .guide-body li { margin-bottom: 4px; }
+
+    .guide-steps {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0 20px;
+    }
+    .guide-step {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .guide-step-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .guide-step-text {
+      font-size: 12px;
+      color: var(--ink-soft);
+      line-height: 1.4;
+    }
+
+    .guide-trust-block {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 16px 0 20px;
+    }
+    .guide-trust-block p {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .guide-trust-block li {
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+
+    .guide-callout {
+      background: var(--accent-lt);
+      border: 1px solid #c3d6fb;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--accent);
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+
+    .guide-deid {
+      background: var(--warn-lt);
+      border: 1px solid #f5c2be;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--warn);
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+
+    .guide-section-item {
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+    }
+    .guide-section-item strong {
+      font-size: 13px;
+      color: var(--ink);
+    }
+    .guide-section-item p {
+      font-size: 12px;
+      margin: 4px 0 0;
+    }
+
+    .guide-ref-list {
+      list-style: none;
+      margin-left: 0 !important;
+      padding: 0;
+    }
+    .guide-ref-list li {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-soft);
+      padding: 5px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .guide-ref-list li:last-child { border-bottom: none; }
+
+    .guide-footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--rule);
+      font-size: 12px;
+      color: var(--ink-mute);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 600px) {
+      .guide-body { padding: 28px 20px 24px; }
+      .guide-steps { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
@@ -841,6 +1077,7 @@
         <span id="btn-text">Analyze Note</span>
         <div class="spinner" id="btn-spinner"></div>
       </button>
+      <a class="guide-link" onclick="openGuide()">How to use this tool</a>
     </div>
   </div>
 
@@ -897,6 +1134,8 @@
   let enrichData = null;       // Call 2 result
   let enrichLoading = false;   // Prevent double-fire
   let providerUsage = null;    // Token usage from Call 1
+  let copyPasteData = null;    // On-demand copy-paste cache
+  let copyPasteLoading = false;
 
   // ── Enable/disable submit ──
   const checkbox = document.getElementById('deid-confirm');
@@ -1002,6 +1241,67 @@
     return null;
   }
 
+  // ── On-demand copy-paste ──
+  async function requestCopyPaste(recId) {
+    // If already loaded, just toggle visibility
+    if (copyPasteData) {
+      showCopyPasteFor(recId);
+      return;
+    }
+    if (copyPasteLoading) return;
+    copyPasteLoading = true;
+
+    // Show spinner on all copy-paste buttons
+    document.querySelectorAll('.btn-copypaste').forEach(function(btn) {
+      btn.disabled = true;
+    });
+    var clickedBtn = document.querySelector('.btn-copypaste[data-rec="' + recId + '"]');
+    if (clickedBtn) clickedBtn.innerHTML = '<span class="copypaste-spinner"></span> Generating...';
+
+    try {
+      var res = await fetch('/copypaste', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: currentNote, prior_analysis: providerData })
+      });
+      var result = await res.json();
+      if (result.data) {
+        copyPasteData = result.data;
+        // Populate all placeholders
+        document.querySelectorAll('.copypaste-slot').forEach(function(slot) {
+          var key = slot.dataset.key;
+          if (copyPasteData[key]) {
+            slot.innerHTML = renderCopyBlock(copyPasteData[key]);
+          } else {
+            slot.innerHTML = '';
+          }
+        });
+        // Remove all buttons (they've been replaced by content or are empty)
+        document.querySelectorAll('.btn-copypaste').forEach(function(btn) { btn.remove(); });
+      } else {
+        if (clickedBtn) clickedBtn.textContent = 'Failed — try again';
+      }
+    } catch(e) {
+      if (clickedBtn) clickedBtn.textContent = 'Failed — try again';
+    } finally {
+      copyPasteLoading = false;
+      document.querySelectorAll('.btn-copypaste').forEach(function(btn) {
+        btn.disabled = false;
+      });
+    }
+  }
+
+  function showCopyPasteFor(recId) {
+    var slot = document.querySelector('.copypaste-slot[data-key="' + recId + '"]');
+    if (slot) slot.style.display = slot.style.display === 'none' ? 'block' : 'block';
+  }
+
+  function renderCopyPasteButton(recKey) {
+    return '<button class="btn-copypaste" data-rec="' + recKey + '" onclick="requestCopyPaste(\'' + recKey + '\')">' +
+      'Get documentation language</button>' +
+      '<div class="copypaste-slot" data-key="' + recKey + '"></div>';
+  }
+
   // ── Analyze (streaming with progressive render) ──
   async function analyzeNote() {
     const note = textarea.value.trim();
@@ -1014,6 +1314,8 @@
     providerUsage = null;
     providerSections = {};
     sectionIdx = 0;
+    copyPasteData = null;
+    copyPasteLoading = false;
     currentView = 'provider';
     document.getElementById('progress-inline').style.display = 'none';
     document.getElementById('progress-fill').style.width = '0%';
@@ -1417,9 +1719,7 @@
     if (item.action_brief) {
       html += '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:6px">' + escapeHtml(item.action_brief) + '</div>';
     }
-    if (item.copy_paste) {
-      html += renderCopyBlock(item.copy_paste);
-    }
+    html += renderCopyPasteButton(String(item.rec_num));
 
     // Detailed view content
     html += '<div class="detail-only">';
@@ -1455,9 +1755,8 @@
             '<span class="decision-option-code">' + escapeHtml(opt.code || '') + '</span>' +
             hccTag +
           '</div>';
-        if (opt.copy_paste) {
-          html += renderCopyBlock(opt.copy_paste);
-        }
+        var optKey = String(item.rec_num) + String.fromCharCode(97 + idx); // "5a", "5b"
+        html += renderCopyPasteButton(optKey);
         if (opt.orders) {
           html += '<div class="decision-option-orders">Consider ordering: ' + escapeHtml(opt.orders) + '</div>';
         }
@@ -1493,9 +1792,7 @@
       '</div>' +
       '<div class="tier3-body">';
 
-    if (item.copy_paste) {
-      html += renderCopyBlock(item.copy_paste);
-    }
+    html += renderCopyPasteButton(String(item.rec_num));
 
     // Detailed view
     html += '<div class="detail-only">';
@@ -1771,5 +2068,168 @@
   }
 </script>
 
+<!-- ── User Guide Modal ── -->
+<div class="guide-overlay" id="guide-overlay" onclick="if(event.target===this)closeGuide()">
+  <div class="guide-panel">
+    <button class="guide-close" onclick="closeGuide()">&times;</button>
+    <div class="guide-body">
+
+      <h2>Coding Consultant</h2>
+      <p class="guide-subtitle">AI-powered coding assistant for SNF/ALF primary care providers</p>
+
+      <!-- ═══ ZONE 1: Quick Start ═══ -->
+      <div class="guide-zone-label">Quick Start</div>
+
+      <h3>What this tool does</h3>
+      <p>Analyzes de-identified clinical notes and returns tiered ICD-10 and CPT coding recommendations with HCC capture guidance — built for primary care providers practicing in skilled nursing facilities and assisted living communities.</p>
+
+      <div class="guide-trust-block">
+        <p>What this tool is NOT</p>
+        <ul>
+          <li>Not HIPAA-regulated — but designed with privacy in mind</li>
+          <li>No data is stored, retained, or viewed by anyone</li>
+          <li>No advertising, no tracking, no model training on your data</li>
+          <li>No data sharing with any third party</li>
+          <li>Notes are processed by Claude (Anthropic) and discarded — no data retention</li>
+          <li><strong>You are responsible for de-identifying notes before submission</strong></li>
+        </ul>
+      </div>
+
+      <h3>Three steps</h3>
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="guide-step-num">1</div>
+          <div class="guide-step-text">Paste a de-identified clinical note</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">2</div>
+          <div class="guide-step-text">Click <strong>Analyze Note</strong></div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">3</div>
+          <div class="guide-step-text">Review tiered recommendations</div>
+        </div>
+      </div>
+
+      <div class="guide-callout">
+        Each note is analyzed in real time by AI — expect about 30 seconds before results start appearing. You'll see billing alerts, E/M code selection, and three tiers of ICD-10 recommendations.
+      </div>
+
+      <div class="guide-deid">
+        <strong>De-identify before pasting.</strong> Remove or generalize: patient name, date of birth, MRN, specific dates of service, facility name, geographic details, and any other PHI. Use initials or pseudonyms for referring providers.
+      </div>
+
+      <!-- ═══ ZONE 2: Capabilities ═══ -->
+      <div class="guide-zone-label">Output Walkthrough</div>
+
+      <h3>Initial analysis (loads automatically)</h3>
+
+      <div class="guide-section-item">
+        <strong>1. Billing Alerts</strong>
+        <p>Red, yellow, and green alerts for hospice modifier issues, place-of-service errors, and denial risks. Displayed first so you catch problems before submitting.</p>
+      </div>
+
+      <div class="guide-section-item">
+        <strong>2. E/M Code Selection</strong>
+        <p>Recommends the appropriate E/M code (99307–99310 for SNF, 99334–99337 for ALF) based on medical decision-making complexity documented in the note.</p>
+      </div>
+
+      <div class="guide-section-item">
+        <strong>3. Tier 1: Code Now</strong>
+        <p>Diagnoses fully supported by the assessment and plan, ready to bill on today's claim. Each recommendation includes the ICD-10 code, rationale, and HCC relevance.</p>
+      </div>
+
+      <div class="guide-section-item">
+        <strong>4. Tier 2: Confirm with Provider</strong>
+        <p>Clinically ambiguous findings presented as decision trees. The tool identifies what's in the note and asks the questions a coder would ask — you decide which branch applies.</p>
+      </div>
+
+      <div class="guide-section-item">
+        <strong>5. Tier 3: Documentation Flags</strong>
+        <p>Future HCC capture opportunities — conditions hinted at in the note that aren't documented enough for today's claim. Useful for annual wellness planning and recapture workflows.</p>
+      </div>
+
+      <div class="guide-section-item">
+        <strong>6. HCC Scorecard</strong>
+        <p>Sidebar showing RAF-relevant conditions, capture status, and annual recapture tracking. Especially relevant for Medicare Advantage patients.</p>
+      </div>
+
+      <div class="guide-section-item">
+        <strong>7. Additional Codes</strong>
+        <p>G2211 add-on, CPT-II quality measures, advance care planning codes, and Z51.x encounter codes — billable items often missed in SNF/ALF visits.</p>
+      </div>
+
+      <h3>Interactive features (click to activate)</h3>
+
+      <div class="guide-section-item">
+        <strong>8. Provider View vs. Detailed Coder View</strong>
+        <p>Toggle at the top of results. <em>Provider View</em> (default) is streamlined and action-oriented. <em>Detailed Coder View</em> unlocks deeper analysis — MDM breakdowns, audit-ready rationales, compliance notes, and expanded billing alert details. Takes a moment to load as the tool does a deeper pass on your note.</p>
+      </div>
+
+      <div class="guide-section-item">
+        <strong>9. Copy-Paste Documentation</strong>
+        <p>The "Get documentation language" button on each recommendation generates exact clinical phrasing ready to paste into your A&amp;P. Each recommendation has its own button. Takes a moment to generate the first time you click it.</p>
+      </div>
+
+      <div class="guide-section-item">
+        <strong>10. Frailty &amp; Advanced Illness Analysis</strong>
+        <p>Loads when you click the frailty card in the summary dashboard or switch to Coder View. Covers qualification status, frailty indicators with ICD-10 codes, advanced illness conditions, dementia medications as proxy, HEDIS measures that get excluded, and copy-paste language for undocumented indicators.</p>
+      </div>
+
+      <div class="guide-section-item">
+        <strong>11. Follow-up Q&amp;A</strong>
+        <p>Ask coding questions in context of the analyzed note. The AI remembers your note and prior analysis, so you can ask things like "Why not I50.9?" or "Does this qualify for 99310?"</p>
+      </div>
+
+      <!-- ═══ ZONE 3: Trust & Sources ═══ -->
+      <div class="guide-zone-label">Trust &amp; Sources</div>
+
+      <h3>How it works</h3>
+      <p>The tool uses a two-call AI architecture: a fast initial analysis renders the provider view progressively as sections complete, followed by lazy enrichment when you request the detailed coder view or copy-paste documentation.</p>
+
+      <h3>Methodology</h3>
+      <p>The three-tier system is designed to prevent overcoding. Tier 1 includes only diagnoses fully documented in the A&amp;P. Tier 2 requires explicit provider confirmation. Tier 3 is informational only and should never appear on today's claim. All output is HCC-aware and written in provider language, not coder jargon.</p>
+
+      <h3>Clinical references</h3>
+      <ul class="guide-ref-list">
+        <li>2021 AMA/CMS E/M Documentation Guidelines</li>
+        <li>CMS-HCC Risk Adjustment Model (V28)</li>
+        <li>ICD-10-CM 2026 Code Set</li>
+        <li>NCQA HEDIS 2025 Technical Specifications (Frailty/Advanced Illness)</li>
+        <li>CMS SNF Prospective Payment System (PDPM)</li>
+      </ul>
+
+      <h3>Limitations</h3>
+      <ul>
+        <li>No live CMS database verification — codes are based on the AI's training data</li>
+        <li>Single-note context — the tool cannot access the patient's full chart history</li>
+        <li>Not a substitute for certified coder review on complex claims</li>
+      </ul>
+
+      <div class="guide-footer">
+        Powered by Claude (Anthropic)
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function openGuide() {
+    document.getElementById('guide-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeGuide() {
+    document.getElementById('guide-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('guide-overlay').classList.contains('open')) {
+      closeGuide();
+    }
+  });
+</script>
+
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
