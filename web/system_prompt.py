@@ -97,6 +97,8 @@ RULES: Conditions referenced in exam/HPI/medications but not in A&P.
 Also clinical findings needing a provider decision (unaddressed exam findings,
 medication specificity issues). Each item must have 2+ options with different codes.
 If one option leads to an HCC capture, include the hcc field.
+PMH-only conditions do NOT belong here — there must be a reference outside PMH
+(exam finding, lab, medication, HPI mention) linking the condition to today's encounter.
 
 "tier3": array of {
   "rec_num": number,
@@ -106,7 +108,9 @@ If one option leads to an HCC capture, include the hcc field.
   "hcc": {"category": string, "raf": string} or null,
   "why_flagged": string — one-line reason
 }
-RULES: Conditions in PMH/history not connected to today's clinical reasoning.
+RULES: Conditions in PMH/history that appear SOMEWHERE outside PMH (e.g. a related
+medication, lab value, exam finding, or HPI mention) but are not in A&P. If a
+condition appears ONLY in PMH with no other reference in the note, omit it entirely.
 Do NOT recommend coding these today. These are future documentation opportunities.
 
 "hcc_scorecard": array of {
@@ -231,7 +235,7 @@ CODES COMMONLY MISSED IN THIS SETTING:
 - G47.33 Obstructive sleep apnea
 
 NEVER DO THESE:
-- Do not recommend coding conditions addressed only in PMH with no A&P connection
+- Do not surface PMH-only conditions anywhere — not in tier1, tier2, tier3, or hcc_scorecard — unless the condition is also referenced outside PMH (exam, HPI, labs, medications, A&P)
 - Do not suggest upcoding
 - Do not code "history of" when active sequelae are present
 - Do not use non-billable header codes
