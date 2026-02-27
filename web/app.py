@@ -15,7 +15,7 @@ import anthropic
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from system_prompt import SYSTEM_PROMPT_PROVIDER, SYSTEM_PROMPT_ENRICH
+from system_prompt import SYSTEM_PROMPT_PROVIDER, SYSTEM_PROMPT_ENRICH, SYSTEM_PROMPT_COPYPASTE
 import subprocess
 
 def get_version():
@@ -245,6 +245,63 @@ def enrich():
                 "raw": raw_text,
                 "usage": usage
             })
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 500
+    except anthropic.APIError as e:
+        return jsonify({"error": f"API error: {str(e)}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+
+@app.route("/copypaste", methods=["POST"])
+def copypaste():
+    """On-demand copy-paste documentation language for recommendations."""
+    data = request.get_json()
+    note = data.get("note", "").strip()
+    prior_analysis = data.get("prior_analysis")
+
+    if not note or not prior_analysis:
+        return jsonify({"error": "Note and prior analysis required."}), 400
+
+    prior_json = json.dumps(prior_analysis) if isinstance(prior_analysis, dict) else str(prior_analysis)
+
+    try:
+        client = get_client()
+        t0 = time.time()
+        logger.info("Starting COPYPASTE call (max_tokens=4096)")
+        response = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=4096,
+            system=SYSTEM_PROMPT_COPYPASTE,
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Clinical note:\n\n{note}\n\nCoding analysis:\n\n{prior_json}\n\nGenerate copy-paste documentation for each recommendation that needs it."
+                }
+            ]
+        )
+        elapsed = time.time() - t0
+
+        raw_text = response.content[0].text
+        usage = {
+            "input_tokens": response.usage.input_tokens,
+            "output_tokens": response.usage.output_tokens
+        }
+        logger.info(
+            "COPYPASTE call complete: %.1fs | input=%d output=%d | stop=%s",
+            elapsed, usage["input_tokens"], usage["output_tokens"],
+            response.stop_reason
+        )
+
+        if response.stop_reason == "max_tokens":
+            logger.warning("COPYPASTE response truncated — max_tokens reached. JSON likely incomplete.")
+
+        structured_data = extract_json(raw_text)
+        if structured_data is not None:
+            return jsonify({"data": structured_data, "usage": usage})
+        else:
+            return jsonify({"error": "Failed to parse copy-paste response"}), 500
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 500
