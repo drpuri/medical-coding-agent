@@ -1043,6 +1043,11 @@
         id="note-input"
         class="note-textarea"
         placeholder="Paste de-identified note here — plain text or JSON format accepted..."
+        autocomplete="off"
+        spellcheck="false"
+        data-gramm="false"
+        data-gramm_editor="false"
+        data-enable-grammarly="false"
       ></textarea>
       <div class="upload-row">
         <button class="btn-upload" onclick="document.getElementById('file-input').click()">
@@ -1149,6 +1154,11 @@
   document.getElementById('file-input').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.size > 500 * 1024) {
+      alert('File too large. Maximum size is 500 KB.');
+      e.target.value = '';
+      return;
+    }
     document.getElementById('file-name-display').textContent = file.name;
     const reader = new FileReader();
     reader.onload = (ev) => { textarea.value = ev.target.result; updateSubmitState(); };
@@ -1306,6 +1316,44 @@
     document.getElementById('file-input').value = '';
     updateSubmitState();
   }
+
+  // ── PHI purge: wipe all clinical data from memory and DOM ──
+  function purgeSessionData() {
+    currentNote = '';
+    currentAnalysis = '';
+    providerData = null;
+    enrichData = null;
+    copyPasteData = null;
+    providerUsage = null;
+    clearNote();
+    showState('empty');
+    // Clear result containers
+    ['summary','billing_alerts','em_code','tier1','tier2','tier3','hcc_scorecard','additional_codes']
+      .forEach(function(id) { var el = document.getElementById(id); if (el) el.innerHTML = ''; });
+    var thread = document.getElementById('followup-thread');
+    if (thread) thread.innerHTML = '';
+    checkbox.checked = false;
+    updateSubmitState();
+  }
+
+  // Auto-purge after 15 minutes of inactivity
+  var _inactivityTimer = null;
+  function resetInactivityTimer() {
+    clearTimeout(_inactivityTimer);
+    _inactivityTimer = setTimeout(function() {
+      if (currentNote) {
+        purgeSessionData();
+        alert('Session data cleared after 15 minutes of inactivity.');
+      }
+    }, 15 * 60 * 1000);
+  }
+  ['click','keydown','scroll','mousemove'].forEach(function(evt) {
+    document.addEventListener(evt, resetInactivityTimer, { passive: true });
+  });
+  resetInactivityTimer();
+
+  // Purge on page unload (back button, tab close, navigation)
+  window.addEventListener('beforeunload', function() { purgeSessionData(); });
 
   // ── Analyze (streaming with progressive render) ──
   async function analyzeNote() {

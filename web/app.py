@@ -39,6 +39,7 @@ app = Flask(
     template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'),
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 )
+app.config['MAX_CONTENT_LENGTH'] = 512 * 1024  # 512 KB
 
 limiter = Limiter(
     get_remote_address,
@@ -83,22 +84,15 @@ def extract_json(raw_text):
             return json.loads(candidate)
         except (json.JSONDecodeError, ValueError) as e:
             logger.error(
-                "JSON parse failed after brace extraction. Error: %s\n"
-                "--- RAW LLM RESPONSE (first 2000 chars) ---\n%s\n"
-                "--- EXTRACTED CANDIDATE (first 2000 chars) ---\n%s\n"
-                "-------------------------------------------",
-                str(e),
-                raw_text[:2000],
-                candidate[:2000]
+                "JSON parse failed after brace extraction. Error: %s | response_length=%d",
+                str(e), len(raw_text)
             )
             return None
 
     # 4. Nothing worked
     logger.error(
-        "No JSON object found in LLM response.\n"
-        "--- RAW LLM RESPONSE (first 2000 chars) ---\n%s\n"
-        "-------------------------------------------",
-        raw_text[:2000]
+        "No JSON object found in LLM response. response_length=%d",
+        len(raw_text)
     )
     return None
 
@@ -108,6 +102,14 @@ def get_client():
     if not api_key:
         raise ValueError("ANTHROPIC_API_KEY environment variable not set")
     return anthropic.Anthropic(api_key=api_key)
+
+
+@app.before_request
+def csrf_protect():
+    if request.method == "POST":
+        content_type = request.content_type or ""
+        if "application/json" not in content_type:
+            return jsonify({"error": "Invalid content type."}), 415
 
 
 @app.route("/")
@@ -133,6 +135,9 @@ def analyze():
 
     if len(note_content) < 50:
         return jsonify({"error": "Note appears too short to analyze."}), 400
+
+    if len(note_content) > 100_000:
+        return jsonify({"error": "Note exceeds maximum length (100,000 characters)."}), 400
 
     # Try to parse as JSON if it looks like structured data
     try:
@@ -376,6 +381,9 @@ def set_security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com; "
