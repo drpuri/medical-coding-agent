@@ -165,7 +165,7 @@ def analyze():
             accumulated = ""
 
             with client.messages.stream(
-                model="claude-sonnet-4-5-20250514",
+                model="claude-sonnet-4-5-20250929",
                 max_tokens=4096,
                 system=CACHED_PROVIDER,
                 messages=[
@@ -230,7 +230,7 @@ def enrich():
         t0 = time.time()
         logger.info("Starting ENRICH call (max_tokens=4096)")
         response = client.messages.create(
-            model="claude-sonnet-4-5-20250514",
+            model="claude-sonnet-4-5-20250929",
             max_tokens=4096,
             system=CACHED_ENRICH,
             messages=[
@@ -307,7 +307,7 @@ def copypaste():
         t0 = time.time()
         logger.info("Starting COPYPASTE call (max_tokens=4096)")
         response = client.messages.create(
-            model="claude-sonnet-4-5-20250514",
+            model="claude-sonnet-4-5-20250929",
             max_tokens=4096,
             system=CACHED_COPYPASTE,
             messages=[
@@ -367,7 +367,7 @@ def followup():
     try:
         client = get_client()
         response = client.messages.create(
-            model="claude-sonnet-4-5-20250514",
+            model="claude-sonnet-4-5-20250929",
             max_tokens=2048,
             system=CACHED_PROVIDER,
             messages=[
