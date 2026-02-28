@@ -1617,12 +1617,15 @@
     if (enrichLoading || !providerData || !currentNote) return;
     enrichLoading = true;
 
-    // Show loading indicators
+    // Show loading in sticky top bar
+    var bar = document.getElementById('progress-inline');
+    var fill = document.getElementById('progress-fill');
+    var lbl = document.getElementById('progress-label');
+    if (bar) bar.style.display = 'flex';
+    if (fill) { fill.style.width = '0%'; fill.style.animation = 'loading 1.8s ease-in-out infinite'; }
+    if (lbl) lbl.textContent = 'Loading detailed analysis & frailty...';
     var enrichSpinner = document.getElementById('enrich-spinner');
     if (enrichSpinner) enrichSpinner.style.display = 'flex';
-    var frailtyPlaceholder = document.getElementById('frailty-placeholder');
-    if (frailtyPlaceholder) frailtyPlaceholder.innerHTML =
-      '<div class="enrich-loading"><div class="loading-bar"><div class="loading-bar-inner"></div></div><div class="loading-label">Loading detailed analysis & frailty...</div></div>';
 
     try {
       var res = await fetch('/enrich', {
@@ -1658,6 +1661,11 @@
       enrichLoading = false;
       var spinner = document.getElementById('enrich-spinner');
       if (spinner) spinner.style.display = 'none';
+      // Hide the sticky progress bar
+      var bar2 = document.getElementById('progress-inline');
+      var fill2 = document.getElementById('progress-fill');
+      if (bar2) bar2.style.display = 'none';
+      if (fill2) fill2.style.animation = '';
     }
   }
 
