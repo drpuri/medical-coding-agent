@@ -165,7 +165,7 @@ def analyze():
             accumulated = ""
 
             with client.messages.stream(
-                model="claude-sonnet-4-5-20250514",
+                model="claude-sonnet-4-5-20241022",
                 max_tokens=4096,
                 system=CACHED_PROVIDER,
                 messages=[
