@@ -1404,11 +1404,12 @@
       const decoder = new TextDecoder();
       let accumulated = '';    // Full text for current section
       let sseBuffer = '';      // SSE line buffer
+      let streamDone = false;
 
       // Show initial progress
       updateProgress(SECTION_ORDER[0].pct, SECTION_ORDER[0].label);
 
-      while (true) {
+      while (!streamDone) {
         const { done, value } = await reader.read();
         if (done) break;
         sseBuffer += decoder.decode(value, { stream: true });
@@ -1453,6 +1454,9 @@
               document.getElementById('progress-inline').style.display = 'none';
             }, 1500);
             document.getElementById('followup-thread').innerHTML = '';
+            streamDone = true;
+            reader.cancel();
+            break;
 
           } else if (payload.type === 'error') {
             throw new Error(payload.error);
