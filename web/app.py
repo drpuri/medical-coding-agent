@@ -26,6 +26,11 @@ def cached_system(prompt_text):
     return [{"type": "text", "text": prompt_text, "cache_control": {"type": "ephemeral"}}]
 
 
+MODEL_MAP = {
+    "sonnet": "claude-sonnet-4-5-20250929",
+    "opus": "claude-opus-4-6",
+}
+
 CACHED_PROVIDER = cached_system(SYSTEM_PROMPT_PROVIDER)
 CACHED_ENRICH = cached_system(SYSTEM_PROMPT_ENRICH)
 CACHED_COPYPASTE = cached_system(SYSTEM_PROMPT_COPYPASTE)
@@ -149,6 +154,9 @@ def analyze():
     if len(note_content) > 100_000:
         return jsonify({"error": "Note exceeds maximum length (100,000 characters)."}), 400
 
+    model_key = data.get("model", "sonnet")
+    model_id = MODEL_MAP.get(model_key, MODEL_MAP["sonnet"])
+
     # Try to parse as JSON if it looks like structured data
     try:
         if note_content.strip().startswith("{") or note_content.strip().startswith("["):
@@ -161,11 +169,11 @@ def analyze():
         try:
             client = get_client()
             t0 = time.time()
-            logger.info("Starting PROVIDER stream (max_tokens=4096)")
+            logger.info("Starting PROVIDER stream (model=%s, max_tokens=4096)", model_id)
             accumulated = ""
 
             with client.messages.stream(
-                model="claude-sonnet-4-5-20250929",
+                model=model_id,
                 max_tokens=4096,
                 system=CACHED_PROVIDER,
                 messages=[
