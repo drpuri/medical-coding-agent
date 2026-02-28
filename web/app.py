@@ -154,8 +154,8 @@ def analyze():
     if len(note_content) > 100_000:
         return jsonify({"error": "Note exceeds maximum length (100,000 characters)."}), 400
 
-    model_key = data.get("model", "sonnet")
-    model_id = MODEL_MAP.get(model_key, MODEL_MAP["sonnet"])
+    model_key = data.get("model", "opus")
+    model_id = MODEL_MAP.get(model_key, MODEL_MAP["opus"])
 
     # Try to parse as JSON if it looks like structured data
     try:

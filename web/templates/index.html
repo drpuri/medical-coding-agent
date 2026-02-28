@@ -202,6 +202,7 @@
     .result-meta {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--rule);
+      position: sticky; top: -32px; background: var(--bg); z-index: 10; padding-top: 32px;
     }
     .result-title { font-size: 16px; font-weight: 600; }
     .result-tokens { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-mute); }
@@ -1074,14 +1075,6 @@
       </div>
     </div>
 
-    <div class="panel-section" style="padding:12px 24px">
-      <div class="section-label">Model</div>
-      <div class="view-toggle">
-        <button class="view-toggle-btn active" id="toggle-sonnet" onclick="switchModel('sonnet')">Sonnet 4.5</button>
-        <button class="view-toggle-btn" id="toggle-opus" onclick="switchModel('opus')">Opus</button>
-      </div>
-    </div>
-
     <div class="panel-section">
       <button class="btn-analyze" id="analyze-btn" onclick="analyzeNote()" disabled>
         <span id="btn-text">Analyze Note</span>
@@ -1140,7 +1133,7 @@
   let currentNote = '';
   let currentAnalysis = '';
   let currentView = 'provider'; // 'provider' or 'detailed'
-  let currentModel = 'sonnet';
+  let currentModel = 'opus';
   let providerData = null;     // Call 1 result
   let enrichData = null;       // Call 2 result
   let enrichLoading = false;   // Prevent double-fire
@@ -1601,13 +1594,6 @@
         '<div class="summary-card-value ' + frailtyClass + '" style="' + frailtyStyle + '"' + frailtyAttrs + '>' + escapeHtml(frailtyLabel) + '</div>' +
       '</div>' +
     '</div>';
-  }
-
-  // ── Model Toggle ──
-  function switchModel(model) {
-    currentModel = model;
-    document.getElementById('toggle-sonnet').className = 'view-toggle-btn' + (model === 'sonnet' ? ' active' : '');
-    document.getElementById('toggle-opus').className = 'view-toggle-btn' + (model === 'opus' ? ' active' : '');
   }
 
   // ── View Toggle ──
