@@ -1180,10 +1180,9 @@
     { name: 'billing_alerts',   label: 'Checking billing alerts...',              pct: 24 },
     { name: 'em_code',          label: 'Evaluating E/M level...',                 pct: 36 },
     { name: 'tier1',            label: 'Analyzing diagnoses...',                  pct: 50 },
-    { name: 'tier2',            label: 'Evaluating clinical decisions...',        pct: 62 },
-    { name: 'tier3',            label: 'Checking documentation flags...',         pct: 74 },
-    { name: 'hcc_scorecard',    label: 'Finalizing HCC scorecard...',             pct: 86 },
-    { name: 'additional_codes', label: 'Checking quality measures & add-on codes...', pct: 95 }
+    { name: 'tier2',            label: 'Evaluating clinical decisions...',        pct: 65 },
+    { name: 'tier3',            label: 'Checking documentation flags...',         pct: 80 },
+    { name: 'additional_codes', label: 'Checking quality measures & add-on codes...', pct: 92 }
   ];
   var sectionIdx = 0;
   var providerSections = {};
@@ -1221,7 +1220,7 @@
       tier1: providerSections.tier1 || [],
       tier2: providerSections.tier2 || [],
       tier3: providerSections.tier3 || [],
-      hcc_scorecard: providerSections.hcc_scorecard || [],
+      hcc_scorecard: [],
       additional_codes: providerSections.additional_codes || []
     };
 
@@ -1438,6 +1437,26 @@
             }
             updateProgress(100, 'Complete');
             providerUsage = payload.usage;
+            // Merge deterministic HCC/RAF data from server enrichment
+            if (providerData && payload.hcc) {
+              var codeMap = payload.hcc.code_map || {};
+              // Inject HCC into tier1 items
+              (providerData.tier1 || []).forEach(function(item) {
+                item.hcc = codeMap[item.code] || null;
+              });
+              // Inject HCC into tier2 option items
+              (providerData.tier2 || []).forEach(function(item) {
+                (item.options || []).forEach(function(opt) {
+                  opt.hcc = codeMap[opt.code] || null;
+                });
+              });
+              // Inject HCC into tier3 items
+              (providerData.tier3 || []).forEach(function(item) {
+                item.hcc = codeMap[item.code] || null;
+              });
+              // Set deterministic HCC scorecard
+              providerData.hcc_scorecard = payload.hcc.scorecard || [];
+            }
             if (providerData) {
               currentAnalysis = JSON.stringify(providerData);
               renderStructured(providerData, providerUsage);

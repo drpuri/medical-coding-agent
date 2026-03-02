@@ -31,11 +31,10 @@ SECTION ORDER (must follow this exact sequence):
   4. tier1 (array)
   5. tier2 (array — may be empty [])
   6. tier3 (array — may be empty [])
-  7. hcc_scorecard (array)
-  8. additional_codes (array)
+  7. additional_codes (array)
 
-Example (8 sections, 7 delimiters):
-{summary}---SECTION---[billing_alerts]---SECTION---{em_code}---SECTION---[tier1]---SECTION---[tier2]---SECTION---[tier3]---SECTION---[hcc_scorecard]---SECTION---[additional_codes]
+Example (7 sections, 6 delimiters):
+{summary}---SECTION---[billing_alerts]---SECTION---{em_code}---SECTION---[tier1]---SECTION---[tier2]---SECTION---[tier3]---SECTION---[additional_codes]
 
 CONCISENESS RULES — CRITICAL FOR PERFORMANCE:
 - Target total output under 1500 tokens. Brevity is critical.
@@ -75,7 +74,6 @@ Always include green confirmations for setting, hospice, and split/shared.
   "rec_num": number — global sequential number,
   "code": string — ICD-10-CM code,
   "description": string — code description,
-  "hcc": {"category": string, "raf": string} or null,
   "status": "supported" | "action_needed",
   "action_brief": string or null — one-line action if action_needed
 }
@@ -89,14 +87,12 @@ Include companion codes as separate entries (e.g. I50.22 alongside I13.0).
   "options": array of {
     "label": string — clinical interpretation (e.g. "Dependent edema / immobility"),
     "code": string — ICD-10-CM code for this path,
-    "hcc": {"category": string, "raf": string} or null,
     "orders": string or null — suggested diagnostic orders
   }
 }
 RULES: Conditions referenced in exam/HPI/medications but not in A&P.
 Also clinical findings needing a provider decision (unaddressed exam findings,
 medication specificity issues). Each item must have 2+ options with different codes.
-If one option leads to an HCC capture, include the hcc field.
 PMH-only conditions do NOT belong here — there must be a reference outside PMH
 (exam finding, lab, medication, HPI mention) linking the condition to today's encounter.
 Note: "PMH of X" or "history of X" phrasing within the HPI is still a PMH reference,
@@ -110,7 +106,6 @@ Use your clinical reasoning — do not limit to any fixed list of patterns.
   "rec_num": number,
   "condition": string — condition name,
   "code": string — potential ICD-10-CM code,
-  "hcc": {"category": string, "raf": string} or null,
   "why_flagged": string — one-line reason
 }
 RULES: Conditions in PMH/history that appear SOMEWHERE outside PMH (e.g. a related
@@ -118,14 +113,6 @@ medication, lab value, exam finding, or active HPI discussion) but are not in A&
 "PMH of X" phrasing inside HPI does NOT count — the condition must be actively
 discussed. If a condition appears ONLY in PMH with no other reference, omit it entirely.
 Do NOT recommend coding these today. These are future documentation opportunities.
-
-"hcc_scorecard": array of {
-  "condition": string,
-  "hcc_category": string — e.g. "HCC 85",
-  "raf": string — e.g. "0.323",
-  "status": "captured" | "action_needed" | "opportunity",
-  "rec_num": number or null — links to relevant recommendation
-}
 
 "additional_codes": array of {
   "code": string — CPT, HCPCS, or CPT-II code,

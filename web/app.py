@@ -5,6 +5,7 @@ Then open http://localhost:5000
 """
 
 import os
+import sys
 import json
 import re
 import time
@@ -19,6 +20,10 @@ logger = logging.getLogger(__name__)
 
 from system_prompt import SYSTEM_PROMPT_PROVIDER, SYSTEM_PROMPT_ENRICH, SYSTEM_PROMPT_COPYPASTE
 import subprocess
+
+# Add cms_data to path for HCC lookup
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'cms_data'))
+from hcc_lookup import lookup_icd10
 
 
 def cached_system(prompt_text):
@@ -112,6 +117,108 @@ def extract_json(raw_text):
     return None
 
 
+def _enrich_hcc_from_accumulated(accumulated_text):
+    """Parse accumulated LLM sections and enrich ICD-10 codes with deterministic HCC/RAF.
+
+    Returns dict with:
+        code_map: {icd10_code: {"category": "HCC X", "raf": "0.XXX"} or null}
+        scorecard: [{condition, hcc_category, raf, status, rec_num}, ...]
+        codes_mapped: int count of codes with HCC mappings
+    """
+    sections = accumulated_text.split("---SECTION---")
+    # Section order: summary, billing_alerts, em_code, tier1, tier2, tier3, additional_codes
+    tier1, tier2, tier3 = [], [], []
+    for i, raw in enumerate(sections):
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        if i == 3:
+            tier1 = parsed if isinstance(parsed, list) else []
+        elif i == 4:
+            tier2 = parsed if isinstance(parsed, list) else []
+        elif i == 5:
+            tier3 = parsed if isinstance(parsed, list) else []
+
+    code_map = {}   # code -> hcc info or None
+    scorecard = []  # HCC scorecard entries
+
+    # Process tier1 codes
+    for item in tier1:
+        code = item.get("code", "")
+        if not code:
+            continue
+        results = lookup_icd10(code)
+        if results:
+            # Use first (primary) HCC mapping
+            r = results[0]
+            hcc_info = {"category": f"HCC {r['hcc']}", "raf": str(r["raf_weight"])}
+            code_map[code] = hcc_info
+            status = "action_needed" if item.get("status") == "action_needed" else "captured"
+            scorecard.append({
+                "condition": item.get("description", ""),
+                "hcc_category": hcc_info["category"],
+                "raf": hcc_info["raf"],
+                "status": status,
+                "rec_num": item.get("rec_num"),
+            })
+        else:
+            code_map[code] = None
+
+    # Process tier2 option codes
+    for item in tier2:
+        for opt in item.get("options", []):
+            code = opt.get("code", "")
+            if not code or code in code_map:
+                continue
+            results = lookup_icd10(code)
+            if results:
+                r = results[0]
+                hcc_info = {"category": f"HCC {r['hcc']}", "raf": str(r["raf_weight"])}
+                code_map[code] = hcc_info
+                scorecard.append({
+                    "condition": opt.get("label", ""),
+                    "hcc_category": hcc_info["category"],
+                    "raf": hcc_info["raf"],
+                    "status": "opportunity",
+                    "rec_num": item.get("rec_num"),
+                })
+            else:
+                code_map[code] = None
+
+    # Process tier3 codes
+    for item in tier3:
+        code = item.get("code", "")
+        if not code or code in code_map:
+            continue
+        results = lookup_icd10(code)
+        if results:
+            r = results[0]
+            hcc_info = {"category": f"HCC {r['hcc']}", "raf": str(r["raf_weight"])}
+            code_map[code] = hcc_info
+            scorecard.append({
+                "condition": item.get("condition", ""),
+                "hcc_category": hcc_info["category"],
+                "raf": hcc_info["raf"],
+                "status": "opportunity",
+                "rec_num": item.get("rec_num"),
+            })
+        else:
+            code_map[code] = None
+
+    # Sort scorecard by RAF descending
+    scorecard.sort(key=lambda x: float(x.get("raf", 0)), reverse=True)
+
+    return {
+        "code_map": code_map,
+        "scorecard": scorecard,
+        "codes_mapped": sum(1 for v in code_map.values() if v is not None),
+    }
+
+
 def get_client():
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
@@ -175,6 +282,7 @@ def analyze():
             with client.messages.stream(
                 model=model_id,
                 max_tokens=4096,
+                temperature=0,
                 system=CACHED_PROVIDER,
                 messages=[
                     {
@@ -190,6 +298,7 @@ def analyze():
                 response = stream.get_final_message()
 
             elapsed = time.time() - t0
+            logger.info("Raw usage object: %s", response.usage)
             usage = {
                 "input_tokens": response.usage.input_tokens,
                 "output_tokens": response.usage.output_tokens,
@@ -203,7 +312,12 @@ def analyze():
                 response.stop_reason
             )
 
-            yield f"data: {json.dumps({'type': 'done', 'usage': usage})}\n\n"
+            # Enrich ICD-10 codes with deterministic HCC/RAF data
+            hcc_data = _enrich_hcc_from_accumulated(accumulated)
+            logger.info("HCC enrichment: %d codes mapped, %d scorecard entries",
+                        hcc_data.get("codes_mapped", 0), len(hcc_data.get("scorecard", [])))
+
+            yield f"data: {json.dumps({'type': 'done', 'usage': usage, 'hcc': hcc_data})}\n\n"
 
         except Exception as e:
             logger.error("PROVIDER stream error: %s", str(e))
