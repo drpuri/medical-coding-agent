@@ -5,7 +5,6 @@ Then open http://localhost:5000
 """
 
 import os
-import sys
 import json
 import re
 import time
@@ -21,9 +20,7 @@ logger = logging.getLogger(__name__)
 from system_prompt import SYSTEM_PROMPT_PROVIDER, SYSTEM_PROMPT_ENRICH, SYSTEM_PROMPT_COPYPASTE
 import subprocess
 
-# Add cms_data to path for HCC lookup
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'cms_data'))
-from hcc_lookup import lookup_icd10
+from cms_data.hcc_lookup import lookup_icd10
 
 
 def cached_system(prompt_text):
