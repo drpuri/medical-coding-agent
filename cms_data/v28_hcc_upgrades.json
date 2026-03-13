@@ -1,0 +1,1006 @@
+{
+  "_source": "Auto-derived from v28_hcc_hierarchies.json + v28_hcc_coefficients_cna.json (official CMS data)",
+  "_note": "For each HCC, lists higher-severity HCCs in the same hierarchy group with positive RAF delta. Sorted by delta descending. Only includes upgrades with delta > 0.",
+  "18": {
+    "label": "Cancer Metastatic to Bone, Other and Unspecified Metastatic Cancer; Acute Leukemia Except Myeloid",
+    "raf": 2.341,
+    "upgrades": [
+      {
+        "hcc": 17,
+        "label": "Cancer Metastatic to Lung, Liver, Brain, and Other Organs; Acute Myeloid Leukemia Except Promyelocytic",
+        "raf": 4.209,
+        "delta": 1.868
+      }
+    ]
+  },
+  "19": {
+    "label": "Myelodysplastic Syndromes, Multiple Myeloma, and Other Cancers",
+    "raf": 1.798,
+    "upgrades": [
+      {
+        "hcc": 17,
+        "label": "Cancer Metastatic to Lung, Liver, Brain, and Other Organs; Acute Myeloid Leukemia Except Promyelocytic",
+        "raf": 4.209,
+        "delta": 2.411
+      },
+      {
+        "hcc": 18,
+        "label": "Cancer Metastatic to Bone, Other and Unspecified Metastatic Cancer; Acute Leukemia Except Myeloid",
+        "raf": 2.341,
+        "delta": 0.543
+      }
+    ]
+  },
+  "20": {
+    "label": "Lung and Other Severe Cancers",
+    "raf": 1.136,
+    "upgrades": [
+      {
+        "hcc": 17,
+        "label": "Cancer Metastatic to Lung, Liver, Brain, and Other Organs; Acute Myeloid Leukemia Except Promyelocytic",
+        "raf": 4.209,
+        "delta": 3.073
+      },
+      {
+        "hcc": 18,
+        "label": "Cancer Metastatic to Bone, Other and Unspecified Metastatic Cancer; Acute Leukemia Except Myeloid",
+        "raf": 2.341,
+        "delta": 1.205
+      },
+      {
+        "hcc": 19,
+        "label": "Myelodysplastic Syndromes, Multiple Myeloma, and Other Cancers",
+        "raf": 1.798,
+        "delta": 0.662
+      }
+    ]
+  },
+  "21": {
+    "label": "Lymphoma and Other Cancers",
+    "raf": 0.671,
+    "upgrades": [
+      {
+        "hcc": 17,
+        "label": "Cancer Metastatic to Lung, Liver, Brain, and Other Organs; Acute Myeloid Leukemia Except Promyelocytic",
+        "raf": 4.209,
+        "delta": 3.538
+      },
+      {
+        "hcc": 18,
+        "label": "Cancer Metastatic to Bone, Other and Unspecified Metastatic Cancer; Acute Leukemia Except Myeloid",
+        "raf": 2.341,
+        "delta": 1.67
+      },
+      {
+        "hcc": 19,
+        "label": "Myelodysplastic Syndromes, Multiple Myeloma, and Other Cancers",
+        "raf": 1.798,
+        "delta": 1.127
+      },
+      {
+        "hcc": 20,
+        "label": "Lung and Other Severe Cancers",
+        "raf": 1.136,
+        "delta": 0.465
+      }
+    ]
+  },
+  "22": {
+    "label": "Bladder, Colorectal, and Other Cancers",
+    "raf": 0.363,
+    "upgrades": [
+      {
+        "hcc": 17,
+        "label": "Cancer Metastatic to Lung, Liver, Brain, and Other Organs; Acute Myeloid Leukemia Except Promyelocytic",
+        "raf": 4.209,
+        "delta": 3.846
+      },
+      {
+        "hcc": 18,
+        "label": "Cancer Metastatic to Bone, Other and Unspecified Metastatic Cancer; Acute Leukemia Except Myeloid",
+        "raf": 2.341,
+        "delta": 1.978
+      },
+      {
+        "hcc": 19,
+        "label": "Myelodysplastic Syndromes, Multiple Myeloma, and Other Cancers",
+        "raf": 1.798,
+        "delta": 1.435
+      },
+      {
+        "hcc": 20,
+        "label": "Lung and Other Severe Cancers",
+        "raf": 1.136,
+        "delta": 0.773
+      },
+      {
+        "hcc": 21,
+        "label": "Lymphoma and Other Cancers",
+        "raf": 0.671,
+        "delta": 0.308
+      }
+    ]
+  },
+  "23": {
+    "label": "Prostate, Breast, and Other Cancers and Tumors",
+    "raf": 0.186,
+    "upgrades": [
+      {
+        "hcc": 17,
+        "label": "Cancer Metastatic to Lung, Liver, Brain, and Other Organs; Acute Myeloid Leukemia Except Promyelocytic",
+        "raf": 4.209,
+        "delta": 4.023
+      },
+      {
+        "hcc": 18,
+        "label": "Cancer Metastatic to Bone, Other and Unspecified Metastatic Cancer; Acute Leukemia Except Myeloid",
+        "raf": 2.341,
+        "delta": 2.155
+      },
+      {
+        "hcc": 19,
+        "label": "Myelodysplastic Syndromes, Multiple Myeloma, and Other Cancers",
+        "raf": 1.798,
+        "delta": 1.612
+      },
+      {
+        "hcc": 20,
+        "label": "Lung and Other Severe Cancers",
+        "raf": 1.136,
+        "delta": 0.95
+      },
+      {
+        "hcc": 21,
+        "label": "Lymphoma and Other Cancers",
+        "raf": 0.671,
+        "delta": 0.485
+      },
+      {
+        "hcc": 22,
+        "label": "Bladder, Colorectal, and Other Cancers",
+        "raf": 0.363,
+        "delta": 0.177
+      }
+    ]
+  },
+  "36": {
+    "label": "Diabetes with Chronic Complications",
+    "raf": 0.166,
+    "upgrades": [
+      {
+        "hcc": 35,
+        "label": "Diabetes with Severe Acute Complications",
+        "raf": 0.949,
+        "delta": 0.783
+      }
+    ]
+  },
+  "37": {
+    "label": "Diabetes with Glycemic, Unspecified, or No Complications",
+    "raf": 0.166,
+    "upgrades": [
+      {
+        "hcc": 35,
+        "label": "Diabetes with Severe Acute Complications",
+        "raf": 0.949,
+        "delta": 0.783
+      }
+    ]
+  },
+  "38": {
+    "label": "Diabetes with Ophthalmologic Complications",
+    "raf": 0.166,
+    "upgrades": [
+      {
+        "hcc": 35,
+        "label": "Diabetes with Severe Acute Complications",
+        "raf": 0.949,
+        "delta": 0.783
+      }
+    ]
+  },
+  "64": {
+    "label": "Cirrhosis of Liver",
+    "raf": 0.447,
+    "upgrades": [
+      {
+        "hcc": 63,
+        "label": "Chronic Liver Failure/End-Stage Liver Disease",
+        "raf": 0.962,
+        "delta": 0.515
+      }
+    ]
+  },
+  "65": {
+    "label": "Chronic Hepatitis",
+    "raf": 0.185,
+    "upgrades": [
+      {
+        "hcc": 63,
+        "label": "Chronic Liver Failure/End-Stage Liver Disease",
+        "raf": 0.962,
+        "delta": 0.777
+      },
+      {
+        "hcc": 64,
+        "label": "Cirrhosis of Liver",
+        "raf": 0.447,
+        "delta": 0.262
+      },
+      {
+        "hcc": 62,
+        "label": "Liver Transplant Status/Complications",
+        "raf": 0.376,
+        "delta": 0.191
+      }
+    ]
+  },
+  "68": {
+    "label": "Inflammatory Bowel Disease",
+    "raf": 0.388,
+    "upgrades": [
+      {
+        "hcc": 63,
+        "label": "Chronic Liver Failure/End-Stage Liver Disease",
+        "raf": 0.962,
+        "delta": 0.574
+      },
+      {
+        "hcc": 64,
+        "label": "Cirrhosis of Liver",
+        "raf": 0.447,
+        "delta": 0.059
+      }
+    ]
+  },
+  "78": {
+    "label": "Inflammatory and Toxic Neuropathy",
+    "raf": 0.326,
+    "upgrades": [
+      {
+        "hcc": 77,
+        "label": "Myasthenia Gravis/Myoneural Disorders and Guillain-Barre Syndrome",
+        "raf": 1.172,
+        "delta": 0.846
+      }
+    ]
+  },
+  "80": {
+    "label": "Parkinson's and Huntington's Diseases",
+    "raf": 0.55,
+    "upgrades": [
+      {
+        "hcc": 77,
+        "label": "Myasthenia Gravis/Myoneural Disorders and Guillain-Barre Syndrome",
+        "raf": 1.172,
+        "delta": 0.622
+      }
+    ]
+  },
+  "81": {
+    "label": "Seizure Disorders and Convulsions",
+    "raf": 0.244,
+    "upgrades": [
+      {
+        "hcc": 77,
+        "label": "Myasthenia Gravis/Myoneural Disorders and Guillain-Barre Syndrome",
+        "raf": 1.172,
+        "delta": 0.928
+      },
+      {
+        "hcc": 80,
+        "label": "Parkinson's and Huntington's Diseases",
+        "raf": 0.55,
+        "delta": 0.306
+      }
+    ]
+  },
+  "94": {
+    "label": "Coagulation Defects and Other Specified Hematological Disorders",
+    "raf": 0.268,
+    "upgrades": [
+      {
+        "hcc": 93,
+        "label": "Disorders of Immunity",
+        "raf": 0.617,
+        "delta": 0.349
+      }
+    ]
+  },
+  "108": {
+    "label": "Sickle Cell Disorders, Except Sickle Cell Anemia",
+    "raf": 0.146,
+    "upgrades": [
+      {
+        "hcc": 107,
+        "label": "Sickle Cell Anemia (Hb-SS)",
+        "raf": 0.457,
+        "delta": 0.311
+      }
+    ]
+  },
+  "112": {
+    "label": "Immune Thrombocytopenia and Specified Coagulation Defects",
+    "raf": 0.45,
+    "upgrades": [
+      {
+        "hcc": 111,
+        "label": "Hemophilia, Male",
+        "raf": 4.639,
+        "delta": 4.189
+      }
+    ]
+  },
+  "115": {
+    "label": "Specified Immunodeficiencies and White Blood Cell Disorders",
+    "raf": 0.565,
+    "upgrades": [
+      {
+        "hcc": 114,
+        "label": "Common Variable and Combined Immunodeficiencies",
+        "raf": 2.262,
+        "delta": 1.697
+      }
+    ]
+  },
+  "138": {
+    "label": "Alcohol Use Disorder, Moderate/Severe, or Alcohol Use with Non-Psychotic Complications",
+    "raf": 0.423,
+    "upgrades": [
+      {
+        "hcc": 135,
+        "label": "Drug Use with Psychotic Complications",
+        "raf": 0.424,
+        "delta": 0.001
+      },
+      {
+        "hcc": 136,
+        "label": "Alcohol Use with Psychotic Complications",
+        "raf": 0.424,
+        "delta": 0.001
+      },
+      {
+        "hcc": 137,
+        "label": "Drug Use Disorder, Moderate/Severe, or Drug Use with Non-Psychotic Complications",
+        "raf": 0.424,
+        "delta": 0.001
+      }
+    ]
+  },
+  "139": {
+    "label": "Substance Use Disorder, Moderate/Severe, or Substance Use with Complications",
+    "raf": 0.242,
+    "upgrades": [
+      {
+        "hcc": 135,
+        "label": "Drug Use with Psychotic Complications",
+        "raf": 0.424,
+        "delta": 0.182
+      },
+      {
+        "hcc": 136,
+        "label": "Alcohol Use with Psychotic Complications",
+        "raf": 0.424,
+        "delta": 0.182
+      },
+      {
+        "hcc": 137,
+        "label": "Drug Use Disorder, Moderate/Severe, or Drug Use with Non-Psychotic Complications",
+        "raf": 0.424,
+        "delta": 0.182
+      },
+      {
+        "hcc": 138,
+        "label": "Alcohol Use Disorder, Moderate/Severe, or Alcohol Use with Non-Psychotic Complications",
+        "raf": 0.423,
+        "delta": 0.181
+      }
+    ]
+  },
+  "152": {
+    "label": "Psychosis, Except Schizophrenia",
+    "raf": 0.484,
+    "upgrades": [
+      {
+        "hcc": 151,
+        "label": "Schizophrenia",
+        "raf": 0.511,
+        "delta": 0.027
+      }
+    ]
+  },
+  "153": {
+    "label": "Personality Disorders; Anorexia/Bulimia Nervosa",
+    "raf": 0.396,
+    "upgrades": [
+      {
+        "hcc": 151,
+        "label": "Schizophrenia",
+        "raf": 0.511,
+        "delta": 0.115
+      },
+      {
+        "hcc": 152,
+        "label": "Psychosis, Except Schizophrenia",
+        "raf": 0.484,
+        "delta": 0.088
+      }
+    ]
+  },
+  "154": {
+    "label": "Bipolar Disorders without Psychosis",
+    "raf": 0.351,
+    "upgrades": [
+      {
+        "hcc": 151,
+        "label": "Schizophrenia",
+        "raf": 0.511,
+        "delta": 0.16
+      },
+      {
+        "hcc": 152,
+        "label": "Psychosis, Except Schizophrenia",
+        "raf": 0.484,
+        "delta": 0.133
+      },
+      {
+        "hcc": 153,
+        "label": "Personality Disorders; Anorexia/Bulimia Nervosa",
+        "raf": 0.396,
+        "delta": 0.045
+      }
+    ]
+  },
+  "155": {
+    "label": "Major Depression, Moderate or Severe",
+    "raf": 0.299,
+    "upgrades": [
+      {
+        "hcc": 151,
+        "label": "Schizophrenia",
+        "raf": 0.511,
+        "delta": 0.212
+      },
+      {
+        "hcc": 152,
+        "label": "Psychosis, Except Schizophrenia",
+        "raf": 0.484,
+        "delta": 0.185
+      },
+      {
+        "hcc": 153,
+        "label": "Personality Disorders; Anorexia/Bulimia Nervosa",
+        "raf": 0.396,
+        "delta": 0.097
+      },
+      {
+        "hcc": 154,
+        "label": "Bipolar Disorders without Psychosis",
+        "raf": 0.351,
+        "delta": 0.052
+      }
+    ]
+  },
+  "181": {
+    "label": "Paraplegia",
+    "raf": 0.942,
+    "upgrades": [
+      {
+        "hcc": 180,
+        "label": "Quadriplegia",
+        "raf": 1.125,
+        "delta": 0.183
+      }
+    ]
+  },
+  "182": {
+    "label": "Spinal Cord Disorders/Injuries",
+    "raf": 0.478,
+    "upgrades": [
+      {
+        "hcc": 180,
+        "label": "Quadriplegia",
+        "raf": 1.125,
+        "delta": 0.647
+      },
+      {
+        "hcc": 181,
+        "label": "Paraplegia",
+        "raf": 0.942,
+        "delta": 0.464
+      },
+      {
+        "hcc": 191,
+        "label": "Rheumatoid Arthritis and Specified Autoimmune Disorders",
+        "raf": 0.855,
+        "delta": 0.377
+      }
+    ]
+  },
+  "192": {
+    "label": "Systemic Lupus Erythematosus and Other Specified Systemic Connective Tissue Disorders",
+    "raf": 0.314,
+    "upgrades": [
+      {
+        "hcc": 191,
+        "label": "Rheumatoid Arthritis and Specified Autoimmune Disorders",
+        "raf": 0.855,
+        "delta": 0.541
+      }
+    ]
+  },
+  "196": {
+    "label": "Myelodysplastic Syndromes and Myelofibrosis",
+    "raf": 0.516,
+    "upgrades": [
+      {
+        "hcc": 195,
+        "label": "Hemophilia, Female and Coagulation Factor Deficiencies",
+        "raf": 2.909,
+        "delta": 2.393
+      }
+    ]
+  },
+  "202": {
+    "label": "Coma, Brain Compression/Anoxic Damage",
+    "raf": 0.543,
+    "upgrades": [
+      {
+        "hcc": 63,
+        "label": "Chronic Liver Failure/End-Stage Liver Disease",
+        "raf": 0.962,
+        "delta": 0.419
+      }
+    ]
+  },
+  "212": {
+    "label": "Respiratory Arrest",
+    "raf": 0.37,
+    "upgrades": [
+      {
+        "hcc": 211,
+        "label": "Respirator Dependence/Tracheostomy Status/Complications",
+        "raf": 0.879,
+        "delta": 0.509
+      }
+    ]
+  },
+  "213": {
+    "label": "Cardio-Respiratory Failure and Shock, Including Respiratory Distress Syndromes",
+    "raf": 0.37,
+    "upgrades": [
+      {
+        "hcc": 211,
+        "label": "Respirator Dependence/Tracheostomy Status/Complications",
+        "raf": 0.879,
+        "delta": 0.509
+      }
+    ]
+  },
+  "224": {
+    "label": "Acute on Chronic Heart Failure",
+    "raf": 0.36,
+    "upgrades": [
+      {
+        "hcc": 222,
+        "label": "End-Stage Heart Failure",
+        "raf": 2.505,
+        "delta": 2.145
+      },
+      {
+        "hcc": 223,
+        "label": "Heart Assist Device/Artificial Heart",
+        "raf": 2.505,
+        "delta": 2.145
+      },
+      {
+        "hcc": 221,
+        "label": "Heart Transplant Status/Complications",
+        "raf": 1.053,
+        "delta": 0.693
+      }
+    ]
+  },
+  "225": {
+    "label": "Acute Heart Failure (Excludes Acute on Chronic)",
+    "raf": 0.36,
+    "upgrades": [
+      {
+        "hcc": 222,
+        "label": "End-Stage Heart Failure",
+        "raf": 2.505,
+        "delta": 2.145
+      },
+      {
+        "hcc": 223,
+        "label": "Heart Assist Device/Artificial Heart",
+        "raf": 2.505,
+        "delta": 2.145
+      },
+      {
+        "hcc": 221,
+        "label": "Heart Transplant Status/Complications",
+        "raf": 1.053,
+        "delta": 0.693
+      }
+    ]
+  },
+  "226": {
+    "label": "Heart Failure, Except End Stage and Acute",
+    "raf": 0.36,
+    "upgrades": [
+      {
+        "hcc": 222,
+        "label": "End-Stage Heart Failure",
+        "raf": 2.505,
+        "delta": 2.145
+      },
+      {
+        "hcc": 223,
+        "label": "Heart Assist Device/Artificial Heart",
+        "raf": 2.505,
+        "delta": 2.145
+      },
+      {
+        "hcc": 221,
+        "label": "Heart Transplant Status/Complications",
+        "raf": 1.053,
+        "delta": 0.693
+      }
+    ]
+  },
+  "227": {
+    "label": "Cardiomyopathy/Myocarditis",
+    "raf": 0.189,
+    "upgrades": [
+      {
+        "hcc": 222,
+        "label": "End-Stage Heart Failure",
+        "raf": 2.505,
+        "delta": 2.316
+      },
+      {
+        "hcc": 223,
+        "label": "Heart Assist Device/Artificial Heart",
+        "raf": 2.505,
+        "delta": 2.316
+      },
+      {
+        "hcc": 221,
+        "label": "Heart Transplant Status/Complications",
+        "raf": 1.053,
+        "delta": 0.864
+      },
+      {
+        "hcc": 224,
+        "label": "Acute on Chronic Heart Failure",
+        "raf": 0.36,
+        "delta": 0.171
+      },
+      {
+        "hcc": 225,
+        "label": "Acute Heart Failure (Excludes Acute on Chronic)",
+        "raf": 0.36,
+        "delta": 0.171
+      },
+      {
+        "hcc": 226,
+        "label": "Heart Failure, Except End Stage and Acute",
+        "raf": 0.36,
+        "delta": 0.171
+      }
+    ]
+  },
+  "229": {
+    "label": "Aortic and Peripheral Arterial Disease",
+    "raf": 0.24,
+    "upgrades": [
+      {
+        "hcc": 228,
+        "label": "Aortic, Peripheral, and Visceral Arterial Aneurysms or Dissection",
+        "raf": 0.252,
+        "delta": 0.012
+      }
+    ]
+  },
+  "253": {
+    "label": "Hemiplegia/Hemiparesis",
+    "raf": 0.387,
+    "upgrades": [
+      {
+        "hcc": 180,
+        "label": "Quadriplegia",
+        "raf": 1.125,
+        "delta": 0.738
+      },
+      {
+        "hcc": 191,
+        "label": "Rheumatoid Arthritis and Specified Autoimmune Disorders",
+        "raf": 0.855,
+        "delta": 0.468
+      }
+    ]
+  },
+  "254": {
+    "label": "Monoplegia, Other Paralytic Syndromes",
+    "raf": 0.321,
+    "upgrades": [
+      {
+        "hcc": 180,
+        "label": "Quadriplegia",
+        "raf": 1.125,
+        "delta": 0.804
+      },
+      {
+        "hcc": 181,
+        "label": "Paraplegia",
+        "raf": 0.942,
+        "delta": 0.621
+      },
+      {
+        "hcc": 191,
+        "label": "Rheumatoid Arthritis and Specified Autoimmune Disorders",
+        "raf": 0.855,
+        "delta": 0.534
+      },
+      {
+        "hcc": 253,
+        "label": "Hemiplegia/Hemiparesis",
+        "raf": 0.387,
+        "delta": 0.066
+      }
+    ]
+  },
+  "264": {
+    "label": "Vascular Disease with Complications",
+    "raf": 0.455,
+    "upgrades": [
+      {
+        "hcc": 263,
+        "label": "Atherosclerosis of Arteries of Extremities with Ulceration or Gangrene",
+        "raf": 1.118,
+        "delta": 0.663
+      }
+    ]
+  },
+  "277": {
+    "label": "Cystic Fibrosis",
+    "raf": 0.998,
+    "upgrades": [
+      {
+        "hcc": 276,
+        "label": "Lung Transplant Status/Complications",
+        "raf": 2.531,
+        "delta": 1.533
+      }
+    ]
+  },
+  "278": {
+    "label": "Fibrosis of Lung and Other Chronic Lung Disorders",
+    "raf": 0.818,
+    "upgrades": [
+      {
+        "hcc": 276,
+        "label": "Lung Transplant Status/Complications",
+        "raf": 2.531,
+        "delta": 1.713
+      },
+      {
+        "hcc": 277,
+        "label": "Cystic Fibrosis",
+        "raf": 0.998,
+        "delta": 0.18
+      }
+    ]
+  },
+  "279": {
+    "label": "Chronic Obstructive Pulmonary Disease",
+    "raf": 0.818,
+    "upgrades": [
+      {
+        "hcc": 276,
+        "label": "Lung Transplant Status/Complications",
+        "raf": 2.531,
+        "delta": 1.713
+      },
+      {
+        "hcc": 277,
+        "label": "Cystic Fibrosis",
+        "raf": 0.998,
+        "delta": 0.18
+      }
+    ]
+  },
+  "280": {
+    "label": "COPD, Interstitial Lung Disorders, and Other Chronic Lung Disorders",
+    "raf": 0.319,
+    "upgrades": [
+      {
+        "hcc": 276,
+        "label": "Lung Transplant Status/Complications",
+        "raf": 2.531,
+        "delta": 2.212
+      },
+      {
+        "hcc": 277,
+        "label": "Cystic Fibrosis",
+        "raf": 0.998,
+        "delta": 0.679
+      },
+      {
+        "hcc": 278,
+        "label": "Fibrosis of Lung and Other Chronic Lung Disorders",
+        "raf": 0.818,
+        "delta": 0.499
+      },
+      {
+        "hcc": 279,
+        "label": "Chronic Obstructive Pulmonary Disease",
+        "raf": 0.818,
+        "delta": 0.499
+      }
+    ]
+  },
+  "283": {
+    "label": "Pneumococcal Pneumonia, Empyema, Lung Abscess",
+    "raf": 0.204,
+    "upgrades": [
+      {
+        "hcc": 282,
+        "label": "Severe Persistent Asthma",
+        "raf": 0.44,
+        "delta": 0.236
+      }
+    ]
+  },
+  "327": {
+    "label": "Chronic Kidney Disease, Stage 4",
+    "raf": 0.514,
+    "upgrades": [
+      {
+        "hcc": 326,
+        "label": "Chronic Kidney Disease, Stage 5",
+        "raf": 0.815,
+        "delta": 0.301
+      }
+    ]
+  },
+  "328": {
+    "label": "Chronic Kidney Disease, Stage 3B",
+    "raf": 0.127,
+    "upgrades": [
+      {
+        "hcc": 326,
+        "label": "Chronic Kidney Disease, Stage 5",
+        "raf": 0.815,
+        "delta": 0.688
+      },
+      {
+        "hcc": 327,
+        "label": "Chronic Kidney Disease, Stage 4",
+        "raf": 0.514,
+        "delta": 0.387
+      }
+    ]
+  },
+  "329": {
+    "label": "Chronic Kidney Disease, Stage 3 Unspecified or Stage 3A",
+    "raf": 0.127,
+    "upgrades": [
+      {
+        "hcc": 326,
+        "label": "Chronic Kidney Disease, Stage 5",
+        "raf": 0.815,
+        "delta": 0.688
+      },
+      {
+        "hcc": 327,
+        "label": "Chronic Kidney Disease, Stage 4",
+        "raf": 0.514,
+        "delta": 0.387
+      }
+    ]
+  },
+  "380": {
+    "label": "Chronic Ulcer of Skin, Except Pressure, Through to Bone or Muscle",
+    "raf": 1.078,
+    "upgrades": [
+      {
+        "hcc": 379,
+        "label": "Pressure Ulcer of Skin with Necrosis Through to Muscle, Tendon, or Bone",
+        "raf": 1.965,
+        "delta": 0.887
+      }
+    ]
+  },
+  "381": {
+    "label": "Pressure Ulcer of Skin with Full Thickness Skin Loss",
+    "raf": 1.075,
+    "upgrades": [
+      {
+        "hcc": 379,
+        "label": "Pressure Ulcer of Skin with Necrosis Through to Muscle, Tendon, or Bone",
+        "raf": 1.965,
+        "delta": 0.89
+      },
+      {
+        "hcc": 380,
+        "label": "Chronic Ulcer of Skin, Except Pressure, Through to Bone or Muscle",
+        "raf": 1.078,
+        "delta": 0.003
+      }
+    ]
+  },
+  "382": {
+    "label": "Pressure Ulcer of Skin with Partial Thickness Skin Loss",
+    "raf": 0.838,
+    "upgrades": [
+      {
+        "hcc": 379,
+        "label": "Pressure Ulcer of Skin with Necrosis Through to Muscle, Tendon, or Bone",
+        "raf": 1.965,
+        "delta": 1.127
+      },
+      {
+        "hcc": 380,
+        "label": "Chronic Ulcer of Skin, Except Pressure, Through to Bone or Muscle",
+        "raf": 1.078,
+        "delta": 0.24
+      },
+      {
+        "hcc": 381,
+        "label": "Pressure Ulcer of Skin with Full Thickness Skin Loss",
+        "raf": 1.075,
+        "delta": 0.237
+      }
+    ]
+  },
+  "383": {
+    "label": "Chronic Ulcer of Skin, Except Pressure, Not Specified as Through to Bone or Muscle",
+    "raf": 0.646,
+    "upgrades": [
+      {
+        "hcc": 379,
+        "label": "Pressure Ulcer of Skin with Necrosis Through to Muscle, Tendon, or Bone",
+        "raf": 1.965,
+        "delta": 1.319
+      },
+      {
+        "hcc": 263,
+        "label": "Atherosclerosis of Arteries of Extremities with Ulceration or Gangrene",
+        "raf": 1.118,
+        "delta": 0.472
+      },
+      {
+        "hcc": 380,
+        "label": "Chronic Ulcer of Skin, Except Pressure, Through to Bone or Muscle",
+        "raf": 1.078,
+        "delta": 0.432
+      },
+      {
+        "hcc": 381,
+        "label": "Pressure Ulcer of Skin with Full Thickness Skin Loss",
+        "raf": 1.075,
+        "delta": 0.429
+      },
+      {
+        "hcc": 382,
+        "label": "Pressure Ulcer of Skin with Partial Thickness Skin Loss",
+        "raf": 0.838,
+        "delta": 0.192
+      }
+    ]
+  },
+  "409": {
+    "label": "Amputation Status, Lower Limb/Amputation Complications",
+    "raf": 0.598,
+    "upgrades": [
+      {
+        "hcc": 263,
+        "label": "Atherosclerosis of Arteries of Extremities with Ulceration or Gangrene",
+        "raf": 1.118,
+        "delta": 0.52
+      }
+    ]
+  }
+}

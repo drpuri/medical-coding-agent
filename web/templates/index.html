@@ -342,6 +342,33 @@
     .hcc-status-action:hover { text-decoration: underline; }
     .hcc-status-opportunity { color: var(--orange); font-weight: 500; font-size: 11px; cursor: pointer; }
     .hcc-status-opportunity:hover { text-decoration: underline; }
+    .hcc-superseded .hcc-condition { color: var(--ink-mute); text-decoration: line-through; }
+    .hcc-superseded .hcc-detail { opacity: 0.6; }
+    .hcc-superseded-note { font-size: 9px; color: var(--ink-mute); font-style: italic; margin-left: 4px; }
+    .hcc-upgrade-hint {
+      display: none;
+      font-size: 10px;
+      color: var(--ok);
+      margin-top: 2px;
+      font-family: 'DM Mono', monospace;
+    }
+    .view-detailed .hcc-upgrade-hint { display: block; }
+    .hcc-interactions-section {
+      display: none;
+      border-top: 1px solid var(--rule);
+      padding: 6px 16px;
+      background: var(--surface);
+    }
+    .view-detailed .hcc-interactions-section { display: block; }
+    .hcc-interaction-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      padding: 3px 0;
+      font-family: 'DM Mono', monospace;
+    }
+    .hcc-interaction-label { color: var(--ink-mute); }
+    .hcc-interaction-raf { color: var(--ok); font-weight: 600; }
     .hcc-raf-total {
       padding: 10px 16px;
       background: var(--surface);
@@ -354,6 +381,7 @@
     /* ── Detail row (for detailed view extras) ── */
     .detail-only { display: none; }
     .view-detailed .detail-only { display: block; }
+    .view-detailed span.detail-only { display: inline; }
     .view-detailed .provider-only { display: none; }
 
     /* ── Billing Alerts ── */
@@ -597,11 +625,28 @@
       padding: 1px 6px;
       border-radius: 3px;
     }
+    .decision-option.hcc-eligible {
+      border-color: var(--orange);
+      background: var(--orange-lt);
+    }
     .decision-option-orders {
       font-size: 11px;
       color: var(--ink-mute);
       margin-top: 6px;
       font-style: italic;
+    }
+
+    /* ── Action-needed copy-block separator ── */
+    .rec-status.action-needed ~ .copypaste-slot .copy-block {
+      margin-top: 12px;
+      border-top: 1px solid var(--rule);
+      padding-top: 12px;
+    }
+
+    /* ── Dimmed non-billable additional codes ── */
+    .addl-code-card.addl-dimmed {
+      opacity: 0.5;
+      border-left-color: var(--rule);
     }
 
     /* ── Tier 3 Accordion ── */
@@ -1454,8 +1499,11 @@
               (providerData.tier3 || []).forEach(function(item) {
                 item.hcc = codeMap[item.code] || null;
               });
-              // Set deterministic HCC scorecard
+              // Set deterministic HCC scorecard + hierarchy/interaction data
               providerData.hcc_scorecard = payload.hcc.scorecard || [];
+              providerData.hcc_interactions = payload.hcc.interactions || [];
+              providerData.hcc_interaction_bonus = payload.hcc.interaction_bonus || 0;
+              providerData.hcc_total_raf = payload.hcc.total_raf || 0;
             }
             if (providerData) {
               currentAnalysis = JSON.stringify(providerData);
@@ -1563,7 +1611,7 @@
     html += '</div>'; // .content-main
 
     // HCC Sidebar
-    html += renderHccSidebar(d.hcc_scorecard || []);
+    html += renderHccSidebar(d.hcc_scorecard || [], d.hcc_interactions || [], d.hcc_interaction_bonus || 0, d.hcc_total_raf || 0);
 
     html += '</div>'; // .content-layout
 
@@ -1747,14 +1795,32 @@
   function renderBillingAlerts(alerts) {
     if (!alerts.length) return '';
     var html = '<div class="section-header">Billing Alerts</div>';
+    var posAmbiguityAdded = false;
     alerts.forEach(function(a) {
+      var msg = a.message || '';
       var cls = 'alert-green';
       var icon = '\u2705';
       if (a.level === 'red') { cls = 'alert-red'; icon = '\uD83D\uDED1'; }
       else if (a.level === 'yellow') { cls = 'alert-yellow'; icon = '\u26A0\uFE0F'; }
+
+      // Resolve POS ambiguity: replace "31/32" or "31 or 32" with "SNF"
+      if (/31\s*\/\s*32|31\s+or\s+32/i.test(msg)) {
+        msg = msg.replace(/POS\s*31\s*\/\s*32/gi, 'SNF')
+                 .replace(/POS\s*31\s+or\s+32/gi, 'SNF')
+                 .replace(/31\s*\/\s*32/g, 'SNF')
+                 .replace(/31\s+or\s+32/gi, 'SNF');
+        if (!posAmbiguityAdded) {
+          posAmbiguityAdded = true;
+          // Inject a yellow alert for POS determination
+          html += '<div class="alert-card alert-yellow">' +
+            '<span class="alert-icon">\u26A0\uFE0F</span>' +
+            '<div><div>POS cannot be determined from note — confirm POS 31 (Part A SNF) vs POS 32 (custodial SNF) before billing</div></div></div>';
+        }
+      }
+
       html += '<div class="alert-card ' + cls + '">' +
         '<span class="alert-icon">' + icon + '</span>' +
-        '<div><div>' + escapeHtml(a.message || '') + '</div>' +
+        '<div><div>' + escapeHtml(msg) + '</div>' +
         (a.detail ? '<div class="alert-detail detail-only">' + escapeHtml(a.detail) + '</div>' : '') +
         '</div></div>';
     });
@@ -1767,7 +1833,8 @@
     var html = '<div class="section-header">E/M Code</div>';
     html += '<div class="em-block">' +
       '<div class="em-code-display">' + escapeHtml(em.code) + '</div>' +
-      '<div class="em-justification">' + escapeHtml(em.justification || '') + '</div>';
+      '<div class="em-justification provider-only">' + escapeHtml(condenseMdmSummary(em.justification || '')) + '</div>' +
+      '<div class="em-justification detail-only">' + escapeHtml(em.justification || '') + '</div>';
     if (em.to_increase) {
       html += '<div class="em-level-hint"><strong>To support higher code:</strong> ' + escapeHtml(em.to_increase) + '</div>';
     }
@@ -1834,13 +1901,17 @@
         if (opt.hcc) {
           hccTag = '<span class="rec-hcc orange">' + escapeHtml(opt.hcc.category) + ' RAF ' + escapeHtml(opt.hcc.raf) + '</span>';
         }
-        html += '<div class="decision-option">' +
+        var optClasses = 'decision-option' + (opt.hcc ? ' hcc-eligible' : '');
+        html += '<div class="' + optClasses + '">' +
           '<div class="decision-option-header">' +
             '<strong>Option ' + optLabel + ':</strong> ' +
             '<span class="decision-option-label">' + escapeHtml(opt.label || '') + '</span>' +
             '<span class="decision-option-code">' + escapeHtml(opt.code || '') + '</span>' +
             hccTag +
           '</div>';
+        if (opt.hcc) {
+          html += '<div style="font-size:11px;color:var(--orange);font-weight:500;margin-top:4px">\u2B06 HCC-eligible \u2014 captures risk adjustment value</div>';
+        }
         var optKey = String(item.rec_num) + String.fromCharCode(97 + idx); // "5a", "5b"
         html += renderCopyPasteButton(optKey);
         if (opt.orders) {
@@ -1899,7 +1970,8 @@
       else if (item.status === 'reportable') { statusClass = 'addl-report'; statusIcon = '\uD83D\uDCCA'; }
       else if (item.status === 'document_to_report') { statusClass = 'addl-action'; statusIcon = '\u26A0\uFE0F'; }
 
-      html += '<div class="addl-code-card ' + statusClass + '">' +
+      var dimmed = /not billable|not enrolled|Part A/i.test(item.note || '');
+      html += '<div class="addl-code-card ' + statusClass + (dimmed ? ' addl-dimmed' : '') + '">' +
         '<div class="addl-code-header">' +
           '<span class="addl-code-badge">' + escapeHtml(item.code) + '</span>' +
           '<span class="addl-code-desc">' + escapeHtml(item.description) + '</span>' +
@@ -1912,17 +1984,16 @@
   }
 
   // ── HCC Sidebar ──
-  function renderHccSidebar(scorecard) {
+  function renderHccSidebar(scorecard, interactions, interactionBonus, totalRaf) {
     if (!scorecard || scorecard.length === 0) return '';
 
-    var totalRaf = 0;
     var html = '<div class="hcc-sidebar" id="hcc-sidebar">' +
       '<div class="hcc-sidebar-header" onclick="document.getElementById(\'hcc-sidebar\').classList.toggle(\'mobile-collapsed\')">HCC Capture Scorecard <span class="hcc-collapse-btn">\u25BC</span></div>' +
       '<div class="hcc-sidebar-body">';
 
     scorecard.forEach(function(item) {
       var raf = parseFloat(item.raf) || 0;
-      totalRaf += raf;
+      var isSuperseded = !!item.superseded_by;
       var statusHtml = '';
       if (item.status === 'captured') {
         statusHtml = '<div class="hcc-status-captured">\u2705 Captured</div>';
@@ -1932,17 +2003,45 @@
         statusHtml = '<div class="hcc-status-opportunity" onclick="scrollToRec(' + item.rec_num + ')">\uD83D\uDD36 #' + item.rec_num + '</div>';
       }
 
-      html += '<div class="hcc-row">' +
+      // Superseded row: strikethrough RAF, muted text
+      var rowClass = isSuperseded ? 'hcc-row hcc-superseded' : 'hcc-row';
+      var rafText = isSuperseded
+        ? '<s>RAF ' + escapeHtml(item.raf || '') + '</s> <span class="hcc-superseded-note">superseded by ' + escapeHtml(item.superseded_by) + '</span>'
+        : 'RAF ' + escapeHtml(item.raf || '');
+
+      // Upgrade arrow hint
+      var upgradeHtml = '';
+      if (item.upgrade_available && item.upgrade_available.raf_delta > 0) {
+        var up = item.upgrade_available;
+        upgradeHtml = '<div class="hcc-upgrade-hint">\u2191 +' + up.raf_delta.toFixed(3) + ' if ' + escapeHtml(up.target_label) + '</div>';
+      }
+
+      html += '<div class="' + rowClass + '">' +
         '<div>' +
           '<div class="hcc-condition">' + escapeHtml(item.condition || '') + '</div>' +
-          '<div class="hcc-detail">' + escapeHtml(item.hcc_category || '') + '<span class="detail-only"> &middot; RAF ' + escapeHtml(item.raf || '') + '</span></div>' +
+          '<div class="hcc-detail">' + escapeHtml(item.hcc_category || '') + '<span class="detail-only"> &middot; ' + rafText + '</span></div>' +
+          upgradeHtml +
         '</div>' +
-        '<div class="hcc-status">' + statusHtml + '</div>' +
+        '<div class="hcc-status">' + (isSuperseded ? '' : statusHtml) + '</div>' +
       '</div>';
     });
 
+    // Interaction bonus rows
+    if (interactions && interactions.length > 0) {
+      html += '<div class="hcc-interactions-section">';
+      interactions.forEach(function(ix) {
+        html += '<div class="hcc-interaction-row">' +
+          '<span class="hcc-interaction-label">' + escapeHtml(ix.label) + '</span>' +
+          '<span class="hcc-interaction-raf">+' + ix.coefficient.toFixed(3) + '</span>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+
     html += '</div>';
-    html += '<div class="hcc-raf-total detail-only">Total potential RAF: ' + totalRaf.toFixed(3) + '</div>';
+    // Use server-calculated total RAF (post-hierarchy + interactions)
+    var displayRaf = totalRaf || 0;
+    html += '<div class="hcc-raf-total detail-only">Adjusted RAF: ' + displayRaf.toFixed(3) + '</div>';
     html += '</div>';
     return html;
   }
@@ -2053,6 +2152,16 @@
       '<div class="detail-label">' + escapeHtml(label) + '</div>' +
       '<div>' + escapeHtml(text) + '</div>' +
     '</div>';
+  }
+
+  function condenseMdmSummary(text) {
+    if (!text) return '';
+    // Extract the first 1-2 sentences as a provider-facing MDM summary
+    var sentences = text.match(/[^.!?]+[.!?]+/g);
+    if (sentences && sentences.length > 2) {
+      return sentences.slice(0, 2).join('').trim();
+    }
+    return text;
   }
 
   function escapeHtml(text) {

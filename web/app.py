@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 from system_prompt import SYSTEM_PROMPT_PROVIDER, SYSTEM_PROMPT_ENRICH, SYSTEM_PROMPT_COPYPASTE
 import subprocess
 
-from cms_data.hcc_lookup import lookup_icd10
+from cms_data.hcc_lookup import lookup_icd10, apply_hierarchies, calculate_interactions, get_specificity_upgrades
 
 
 def cached_system(prompt_text):
@@ -206,12 +206,76 @@ def _enrich_hcc_from_accumulated(accumulated_text):
         else:
             code_map[code] = None
 
+    # --- Apply V28 hierarchies ---
+    # Collect all unique HCC numbers from scorecard
+    hcc_set = set()
+    hcc_num_map = {}  # hcc_num -> scorecard entry (first occurrence)
+    for entry in scorecard:
+        cat = entry.get("hcc_category", "")
+        if cat.startswith("HCC "):
+            try:
+                hcc_num = int(cat.split(" ", 1)[1])
+                hcc_set.add(hcc_num)
+                if hcc_num not in hcc_num_map:
+                    hcc_num_map[hcc_num] = entry
+            except (ValueError, IndexError):
+                pass
+
+    hier_status = apply_hierarchies(hcc_set)
+
+    # Mark superseded entries and add upgrade hints
+    for entry in scorecard:
+        cat = entry.get("hcc_category", "")
+        hcc_num = None
+        if cat.startswith("HCC "):
+            try:
+                hcc_num = int(cat.split(" ", 1)[1])
+            except (ValueError, IndexError):
+                pass
+
+        # Superseded status
+        sup = hier_status.get(hcc_num) if hcc_num else None
+        entry["superseded_by"] = f"HCC {sup}" if sup else None
+
+        # Specificity upgrade hint
+        if hcc_num:
+            up = get_specificity_upgrades(hcc_num)
+            if up and up.get("upgrades"):
+                best = up["upgrades"][0]  # highest delta
+                entry["upgrade_available"] = {
+                    "target_hcc": best["hcc"],
+                    "target_label": best["label"],
+                    "raf_delta": best["delta"],
+                }
+            else:
+                entry["upgrade_available"] = None
+        else:
+            entry["upgrade_available"] = None
+
+    # --- Calculate interactions on active HCCs ---
+    active_hccs = {h for h, sup in hier_status.items() if sup is None}
+    interactions = calculate_interactions(active_hccs)
+    interaction_bonus = round(sum(i["coefficient"] for i in interactions), 3)
+
+    # --- Compute adjusted RAF (active HCCs only + interaction bonus) ---
+    active_raf = 0.0
+    for entry in scorecard:
+        if entry.get("superseded_by") is None:
+            active_raf += float(entry.get("raf", 0))
+    total_raf = round(active_raf + interaction_bonus, 3)
+
     # Sort scorecard by RAF descending
     scorecard.sort(key=lambda x: float(x.get("raf", 0)), reverse=True)
 
     return {
         "code_map": code_map,
         "scorecard": scorecard,
+        "interactions": [
+            {"label": ix["label"], "coefficient": ix["coefficient"]}
+            for ix in interactions
+        ],
+        "interaction_bonus": interaction_bonus,
+        "total_raf": total_raf,
         "codes_mapped": sum(1 for v in code_map.values() if v is not None),
     }
 

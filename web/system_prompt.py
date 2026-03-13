@@ -150,6 +150,13 @@ HCC CAPTURE RULES:
 - Conditions must be addressed in the A&P — PMH listing alone does not support coding
 - Flag every HCC-eligible condition in the hcc_scorecard
 
+HCC SPECIFICITY:
+- When coding diabetes, CHF, CKD, or dementia at an unspecified level,
+  set status to "action_needed" with action_brief noting the specific
+  documentation needed to support the higher-severity HCC (e.g.,
+  "Specify systolic vs diastolic and acute/chronic for CHF to support
+  HCC 224-226 instead of HCC 227").
+
 HOSPICE BILLING RULES:
 - Modifier GW: Services unrelated to terminal hospice diagnosis
 - Modifier GV: Attending physician not employed by hospice
@@ -211,6 +218,77 @@ E/M LEVEL SELECTION (MDM-based, 2021 guidelines):
 
 SNF code family: initial 99304-99306, subsequent 99307-99310
 ALF/domiciliary code family: initial 99324-99328, subsequent 99334-99337
+
+MDM ELEMENT 3 (RISK) — SNF/LTC-SPECIFIC HIGH-RISK INDICATORS:
+
+The AMA states the MDM table examples are "not exhaustive." The following
+indicators are clinically valid applications of Element 3 risk assessment
+in the SNF/LTC setting. When these patterns appear in the note, assess
+whether Element 3 should be HIGH rather than defaulting to MODERATE.
+
+CONDITION INTERACTIONS THAT ELEVATE RISK:
+When the provider is managing Condition A and Condition B makes that
+management decision more dangerous, and both are addressed at the
+encounter, the compounding risk elevates Element 3. Common patterns:
+- CKD + insulin-managed diabetes (hypoglycemia risk from altered clearance)
+- CKD + anticoagulation (amplified bleeding risk)
+- CKD + CHF (fluid management paradox — diuresis vs renal tolerance)
+- CHF + COPD (beta-agonists worsen cardiac; fluid and respiratory management conflict)
+- Diabetes + dementia (patient cannot report or self-manage hypoglycemia)
+- Atrial fibrillation + falls risk + anticoagulation (stroke prevention vs ICH risk)
+- Diabetes + PVD + pressure injury (impaired healing, infection, glucose interaction)
+- CKD + multiple renally-dosed medications (every med decision risks toxicity)
+- Liver disease + hepatically metabolized medications (drug accumulation)
+- Dysphagia + multiple oral medications (aspiration risk per administration)
+- Heart failure + NSAID use (fluid retention precipitating CHF exacerbation)
+- Parkinson's + antipsychotic use (worsened motor symptoms, increased mortality)
+
+ACUTE CHANGES SIGNALING HIGH RISK:
+- New-onset delirium (underlying cause may be life-threatening)
+- Acute functional decline (may signal stroke, infection, metabolic emergency)
+- Unintentional weight loss >5% in 30 days (occult malignancy, infection)
+- Stage 3+ pressure injury, new or worsening (sepsis risk)
+- Recurrent falls 2+ in 30 days (medication review decisions create their own risks)
+- Acute behavioral escalation in dementia (psychotropics carry FDA black box warning)
+- New/worsening dysphagia (aspiration pneumonia risk)
+- Fever of unknown origin in frail elderly (sepsis risk)
+- Oxygen desaturation / new O2 requirement (respiratory failure risk)
+- Hyperglycemic crisis managed in facility (life-threatening)
+- Symptomatic hypoglycemia requiring intervention (seizure, cardiac, death risk)
+
+HIGH-RISK TREATMENT DECISIONS IN SNF/LTC:
+- Initiating/adjusting psychotropics in elderly/dementia (FDA black box, CMS scrutiny)
+- Insulin changes in renal impairment or cognitive decline
+- Starting/changing anticoagulation with falls history
+- Initiating opioids in opioid-naive elderly
+- Tube feeding initiation or discontinuation
+- Pursuing or forgoing diagnostic workup in frail/end-of-life patient
+- Fluid management in CHF + CKD (narrow therapeutic window)
+- Decision to manage acute change in facility vs. transfer to hospital
+- Sepsis workup with IV antibiotics in facility vs. hospital transfer
+- Fall with head injury in anticoagulated patient — observe vs. transfer
+- Medication deprescribing in complex polypharmacy
+- Decision to continue vs. discontinue dialysis
+
+DOCUMENTATION RED FLAGS (may indicate undercoded risk):
+When you see these, assess the full clinical picture before defaulting to Moderate:
+- "Renal dosing" or "adjusted for renal/hepatic function"
+- "Risks and benefits discussed"
+- Anticoagulation + any additional risk factor (falls, renal, GI history)
+- "Monitor for" / "watch for" / "check levels" + adverse effect
+- Decision NOT to hospitalize ("will manage in facility", "does not meet criteria for transfer")
+- Goals-of-care language ("discussed prognosis", "code status reviewed", "comfort measures")
+- Medication changes with 5+ active medications (polypharmacy interactions)
+- "Despite current treatment" or "not at goal" (unstable chronic condition per AMA)
+- Acute-on-chronic language ("acute exacerbation of CHF", "COPD flare")
+
+IMPORTANT: Social determinants limiting diagnosis or treatment (patient refusal,
+cognitive impairment limiting care participation, lack of caregiver support,
+language barriers, housing insecurity) are MODERATE per AMA, not HIGH.
+They can push toward HIGH only when combined with other risk factors.
+
+NOTE: Parenteral controlled substances (IV, IM, subcutaneous, intrathecal)
+are a separate AMA-defined HIGH risk category — not just "drug management."
 
 PDPM AWARENESS (for SNF patients):
 - Flag codes affecting: SLP component (dysphagia R13.x), Nursing component

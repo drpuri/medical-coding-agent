@@ -1,0 +1,13 @@
+{
+  "condition_interactions": [
+    {"condition_a": ["N18"], "condition_b": ["E10", "E11", "E13"], "risk": "high", "reason": "Renal impairment alters insulin clearance, unpredictable hypoglycemia risk"},
+    {"condition_a": ["N18"], "condition_b": ["Z79.01", "Z79.02"], "risk": "high", "reason": "Renal impairment affects anticoagulant metabolism, amplified bleeding risk"},
+    {"condition_a": ["N18"], "condition_b": ["I50"], "risk": "high", "reason": "Fluid management paradox — CHF requires diuresis, CKD limits tolerance"},
+    {"condition_a": ["I50"], "condition_b": ["J44", "J43"], "risk": "high", "reason": "Beta-agonists worsen cardiac status; fluid and respiratory management conflict"},
+    {"condition_a": ["E10", "E11", "E13"], "condition_b": ["F01", "F02", "F03", "G30"], "risk": "high", "reason": "Patient cannot report hypoglycemia or self-manage insulin"},
+    {"condition_a": ["I48"], "condition_b": ["Z91.81", "R29.6", "W01", "W06", "W18", "W19"], "risk": "high", "reason": "Anticoagulation indicated but dramatically increases fall morbidity"},
+    {"condition_a": ["G20"], "condition_b": ["F20", "F25", "R45.1"], "risk": "high", "reason": "Antipsychotics worsen Parkinson's motor symptoms and increase mortality"},
+    {"condition_a": ["I50"], "condition_b": ["M25.5"], "risk": "high", "reason": "NSAIDs cause fluid retention precipitating CHF exacerbation; pain management constrained"},
+    {"condition_a": ["R13"], "condition_b": [], "risk": "elevated", "reason": "Dysphagia with multiple oral medications creates aspiration risk per administration"}
+  ]
+}

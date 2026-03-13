@@ -1,0 +1,51 @@
+{
+  "_source": "CMS 2026 Model Software V2826.115.T1, file C2824T2N.csv + V2826T1M.TXT (official CNA interaction terms)",
+  "_note": "Disease interaction terms for Community NonDual Aged (CNA) segment. Each interaction fires when ALL constituent disease groups have at least one active (post-hierarchy) HCC. The coefficient is an additive RAF bonus.",
+  "interactions": [
+    {
+      "label": "Diabetes + Heart Failure",
+      "variable": "DIABETES_HF_V28",
+      "groups": {
+        "DIABETES_V28": [35, 36, 37, 38],
+        "HF_V28": [221, 222, 223, 224, 225, 226]
+      },
+      "coefficient": 0.112
+    },
+    {
+      "label": "Heart Failure + Chronic Lung Disorder",
+      "variable": "HF_CHR_LUNG_V28",
+      "groups": {
+        "HF_V28": [221, 222, 223, 224, 225, 226],
+        "CHR_LUNG_V28": [276, 277, 278, 279, 280]
+      },
+      "coefficient": 0.078
+    },
+    {
+      "label": "Heart Failure + Kidney Disease",
+      "variable": "HF_KIDNEY_V28",
+      "groups": {
+        "HF_V28": [221, 222, 223, 224, 225, 226],
+        "KIDNEY_V28": [326, 327, 328, 329]
+      },
+      "coefficient": 0.176
+    },
+    {
+      "label": "Chronic Lung Disorder + Cardiorespiratory Failure",
+      "variable": "CHR_LUNG_CARD_RESP_FAIL_V28",
+      "groups": {
+        "CHR_LUNG_V28": [276, 277, 278, 279, 280],
+        "CARD_RESP_FAIL": [211, 212, 213]
+      },
+      "coefficient": 0.254
+    },
+    {
+      "label": "Heart Failure + Specified Heart Arrhythmias",
+      "variable": "HF_HCC238_V28",
+      "groups": {
+        "HF_V28": [221, 222, 223, 224, 225, 226],
+        "HCC238": [238]
+      },
+      "coefficient": 0.077
+    }
+  ]
+}
